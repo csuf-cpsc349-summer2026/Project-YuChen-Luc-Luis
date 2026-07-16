@@ -1,1 +1,4 @@
-# Project-YuChen-Luc-Luis
+# Project members
+YuChen Chung
+Luc Brown
+Luis E. Aldana Jr.
