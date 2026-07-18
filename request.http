@@ -1,0 +1,13 @@
+#use to get current user location
+GET http://ip-api.com/json/
+
+###
+
+#use to get current user location weather and tempeature
+GET https://api.open-meteo.com/v1/forecast?latitude=33.8823&longitude=-117.8850&current=temperature_2m
+
+
+###
+
+#Show detailed information about the artist performing at the event
+GET https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=Taylor+Swift&api_key=23fa6ce2d7ed40c103a01120c402eed9&format=json

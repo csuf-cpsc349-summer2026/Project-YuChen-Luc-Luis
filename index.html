@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Finder</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <header>
+        <nav>
+            <h1>🎵 Event Finder</h1>
+        </nav>
+    </header>
+
+    <main>
+
+        <!-- Location Section -->
+        <section id="location-section">
+            <h2>📍 Your Current Location</h2>
+
+            <div id="location-card">
+                <p><strong>City:</strong> <span id="city">Loading...</span></p>
+                <p><strong>Region:</strong> <span id="region">Loading...</span></p>
+                <p><strong>Country:</strong> <span id="country">Loading...</span></p>
+            </div>
+        </section>
+
+        <!-- Weather Section -->
+        <section id="weather-section">
+            <h2>☀️ Current Weather</h2>
+
+            <div id="weather-card">
+                <p><strong>Temperature:</strong> <span id="temperature">--</span> °C</p>
+            </div>
+        </section>
+
+        <!-- Artist Search -->
+        <section id="search-section">
+
+            <h2>🎤 Search Artist</h2>
+
+            <input
+                type="text"
+                id="artist-input"
+                placeholder="Enter artist name..."
+            >
+
+            <button id="search-btn">
+                Search
+            </button>
+
+        </section>
+
+        <!-- Artist Information -->
+        <section id="artist-section">
+
+            <h2>Artist Information</h2>
+
+            <div id="artist-card">
+
+                <h3 id="artist-name">
+                    Search an artist
+                </h3>
+
+                <p>
+                    <strong>Genres:</strong>
+                    <span id="artist-tags">-</span>
+                </p>
+
+                <p>
+                    <strong>Listeners:</strong>
+                    <span id="artist-listeners">-</span>
+                </p>
+
+                <p>
+                    <strong>Biography:</strong>
+                </p>
+
+                <p id="artist-bio">
+                    Artist information will appear here.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="js/locationApi.js"></script>
+    <script src="js/weatherApi.js"></script>
+    <script src="js/artistApi.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+</html>

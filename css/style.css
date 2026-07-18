@@ -1,0 +1,125 @@
+/* Reset */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body */
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f6f9;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Header */
+
+header {
+    background: #1e3a8a;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+nav h1 {
+    font-size: 2rem;
+}
+
+/* Main */
+
+main {
+    width: 90%;
+    max-width: 1000px;
+    margin: 30px auto;
+}
+
+/* Sections */
+
+section {
+    background: white;
+    margin-bottom: 25px;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+section h2 {
+    margin-bottom: 20px;
+    color: #1e3a8a;
+}
+
+/* Cards */
+
+#location-card,
+#weather-card,
+#artist-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#artist-card h3 {
+    color: #2563eb;
+    margin-bottom: 10px;
+}
+
+/* Search */
+
+#search-section {
+    text-align: center;
+}
+
+#artist-input {
+    width: 70%;
+    max-width: 400px;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+}
+
+#search-btn {
+    padding: 12px 20px;
+    margin-left: 10px;
+    font-size: 16px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#search-btn:hover {
+    background: #1d4ed8;
+}
+
+/* Biography */
+
+#artist-bio {
+    margin-top: 10px;
+    line-height: 1.8;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+
+    main {
+        width: 95%;
+    }
+
+    #artist-input {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    #search-btn {
+        width: 100%;
+        margin-left: 0;
+    }
+
+}
