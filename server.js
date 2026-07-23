@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 const express = require("express");
-const path = require("path");
+const cors = require("cors");
 const SpotifyWebApi = require("spotify-web-api-node");
 
 const app = express();
@@ -12,7 +12,15 @@ const spotifyApi = new SpotifyWebApi({
     clientSecret: process.env.SPOTIFY_CLIENT_SECRET
 });
 
-app.use(express.static(path.join(__dirname)));
+app.use(cors());
+
+app.use(express.json());
+
+async function authenticateSpotify() {
+    const tokenData = await spotifyApi.clientCredentialsGrant();
+
+    spotifyApi.setAccessToken(tokenData.body.access_token);
+}
 
 app.get("/api/search", async (request, response) => {
     try {
@@ -24,8 +32,7 @@ app.get("/api/search", async (request, response) => {
             });
         }
 
-        const tokenData = await spotifyApi.clientCredentialsGrant();
-        spotifyApi.setAccessToken(tokenData.body.access_token);
+        await authenticateSpotify();
 
         const searchData = await spotifyApi.searchArtists(query, {
             limit: 10
@@ -47,7 +54,7 @@ app.get("/api/search", async (request, response) => {
             error.body || error.message
         );
 
-        response.status(500).json({
+        response.status(error.statusCode || 500).json({
             error: "Unable to search Spotify."
         });
     }
@@ -56,18 +63,19 @@ app.get("/api/search", async (request, response) => {
 app.get("/api/artist/:id", async (request, response) => {
     try {
         const artistId = request.params.id;
+        
+        console.log("Server received artist ID:", JSON.stringify(artistId));
 
-        console.log("Artist endpoint reached:", artistId);
+        if (!artistId) {
+            return response.status(400).json({
+                error: "Artist ID is required."
+            });
+        }
 
-        const tokenData = await spotifyApi.clientCredentialsGrant();
-        spotifyApi.setAccessToken(tokenData.body.access_token);
-
-        console.log("Spotify token received");
+        await authenticateSpotify();
 
         const artistData = await spotifyApi.getArtist(artistId);
         const artist = artistData.body;
-
-        console.log("Artist received:", artist.name);
 
         response.json({
             id: artist.id,
