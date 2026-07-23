@@ -210,3 +210,22 @@ section {
         flex-direction: column;
     }
 }
+
+.artist-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.artist-page-image {
+    width: 350px;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 20px;
+    margin-bottom: 25px;
+}
+
+.artist-page-info {
+    width: 100%;
+}
