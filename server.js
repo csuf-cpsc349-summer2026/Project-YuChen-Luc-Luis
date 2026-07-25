@@ -1,11 +1,12 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+import express from "express";
+import cors from "cors";
+import SpotifyWebApi from "spotify-web-api-node";
 
-const express = require("express");
-const cors = require("cors");
-const SpotifyWebApi = require("spotify-web-api-node");
+dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const spotifyApi = new SpotifyWebApi({
     clientId: process.env.SPOTIFY_CLIENT_ID,
@@ -13,12 +14,10 @@ const spotifyApi = new SpotifyWebApi({
 });
 
 app.use(cors());
-
 app.use(express.json());
 
 async function authenticateSpotify() {
     const tokenData = await spotifyApi.clientCredentialsGrant();
-
     spotifyApi.setAccessToken(tokenData.body.access_token);
 }
 
@@ -47,14 +46,14 @@ app.get("/api/search", async (request, response) => {
             followers: artist.followers?.total ?? 0
         }));
 
-        response.json(artists);
+        return response.json(artists);
     } catch (error) {
         console.error(
             "Spotify search failed:",
             error.body || error.message
         );
 
-        response.status(error.statusCode || 500).json({
+        return response.status(error.statusCode || 500).json({
             error: "Unable to search Spotify."
         });
     }
@@ -62,8 +61,8 @@ app.get("/api/search", async (request, response) => {
 
 app.get("/api/artist/:id", async (request, response) => {
     try {
-        const artistId = request.params.id;
-        
+        const artistId = request.params.id?.trim();
+
         console.log("Server received artist ID:", JSON.stringify(artistId));
 
         if (!artistId) {
@@ -77,7 +76,7 @@ app.get("/api/artist/:id", async (request, response) => {
         const artistData = await spotifyApi.getArtist(artistId);
         const artist = artistData.body;
 
-        response.json({
+        return response.json({
             id: artist.id,
             name: artist.name,
             image: artist.images?.[0]?.url || "",
@@ -92,7 +91,7 @@ app.get("/api/artist/:id", async (request, response) => {
             error.body || error.message
         );
 
-        response.status(error.statusCode || 500).json({
+        return response.status(error.statusCode || 500).json({
             error: "Unable to load artist information."
         });
     }
