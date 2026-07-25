@@ -16,6 +16,10 @@ const spotifyApi = new SpotifyWebApi({
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+    res.send("Music Discovery API is running.");
+});
+
 async function authenticateSpotify() {
     const tokenData = await spotifyApi.clientCredentialsGrant();
     spotifyApi.setAccessToken(tokenData.body.access_token);
