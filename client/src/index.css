@@ -58,7 +58,7 @@ section {
 }
 
 /* ===========================
-   Artist Search Results
+   Artist Search Controls
 =========================== */
 
 .artist-search-controls {
@@ -79,27 +79,32 @@ section {
     padding: 12px 20px;
     border: none;
     border-radius: 8px;
-    background: #1DB954;
+    background: #1db954;
     color: white;
     font-weight: bold;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
 .artist-search-controls button:hover {
     background: #17a74a;
+    transform: translateY(-1px);
 }
 
 .artist-search-controls button:disabled {
     opacity: 0.7;
     cursor: default;
+    transform: none;
 }
 
 /* ===========================
    Artist Results
 =========================== */
 
-#artist-results {
+#artist-results,
+#favorite-artists {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     gap: 24px;
@@ -116,15 +121,15 @@ section {
     padding: 18px;
     background: white;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transition:
-        transform .2s ease,
-        box-shadow .2s ease;
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .artist-result-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,.15);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 /* ===========================
@@ -166,50 +171,86 @@ section {
 }
 
 /* ===========================
-   View Artist Button
+   Artist Card Actions
 =========================== */
 
-.artist-result-info a {
-    align-self: flex-start;
+.artist-result-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     margin-top: 12px;
+}
+
+.artist-result-actions a,
+.favorite-btn {
+    width: 100%;
     padding: 10px 16px;
-    background: #1DB954;
+    border: none;
+    border-radius: 8px;
+    background: #1db954;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.artist-result-actions a:hover,
+.favorite-btn:hover {
+    background: #17a74a;
+    transform: translateY(-1px);
+}
+
+.favorite-btn.active {
+    background: #1e3a8a;
+}
+
+.favorite-btn.active:hover {
+    background: #162f73;
+}
+
+/* ===========================
+   Empty Favorites
+=========================== */
+
+.empty-favorites {
+    margin-top: 20px;
+    padding: 30px;
+    text-align: center;
+    background: #f4f6f9;
+    border-radius: 10px;
+}
+
+.empty-favorites p {
+    margin-bottom: 15px;
+}
+
+.empty-favorites a {
+    display: inline-block;
+    padding: 10px 16px;
+    background: #1db954;
     color: white;
     text-decoration: none;
     border-radius: 8px;
     font-weight: bold;
-    transition: background .2s ease;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
-.artist-result-info a:hover {
+.empty-favorites a:hover {
     background: #17a74a;
+    transform: translateY(-1px);
 }
 
 /* ===========================
-   Mobile
+   Artist Detail Page
 =========================== */
-
-@media (max-width: 700px) {
-
-    .artist-result-card {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-
-    .artist-result-image {
-        width: 180px;
-        height: 180px;
-    }
-
-    .artist-result-info a {
-        align-self: center;
-    }
-
-    .artist-search-controls {
-        flex-direction: column;
-    }
-}
 
 .artist-page {
     display: flex;
@@ -228,4 +269,183 @@ section {
 
 .artist-page-info {
     width: 100%;
+}
+
+.artist-page-info h2 {
+    margin-bottom: 15px;
+    color: #1e3a8a;
+    font-size: 2rem;
+}
+
+.artist-page-info p {
+    margin-bottom: 10px;
+}
+
+.artist-page-info .favorite-btn {
+    width: auto;
+    min-width: 180px;
+    margin-top: 15px;
+    margin-right: 10px;
+}
+
+.artist-page-info > a {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 16px;
+    background: #1db954;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.artist-page-info > a:hover {
+    background: #17a74a;
+    transform: translateY(-1px);
+}
+
+/* ===========================
+   Mobile
+=========================== */
+
+@media (max-width: 700px) {
+    nav {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    nav div {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .artist-result-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .artist-result-image {
+        width: 180px;
+        height: 180px;
+    }
+
+    .artist-result-actions {
+        width: 100%;
+    }
+
+    .artist-search-controls {
+        flex-direction: column;
+    }
+
+    #artist-results,
+    #favorite-artists {
+        grid-template-columns: 1fr;
+    }
+
+    .artist-page-info {
+        text-align: center;
+    }
+
+    .artist-page-info .favorite-btn,
+    .artist-page-info > a {
+        display: block;
+        width: 100%;
+        margin-right: 0;
+    }
+}
+
+/* ===========================
+   Home Page Sections
+=========================== */
+
+main > section {
+    margin-bottom: 24px;
+}
+
+/* ===========================
+   Home Search
+=========================== */
+
+#search-section {
+    padding: 35px;
+}
+
+#search-section h2 {
+    margin-bottom: 5px;
+    font-size: 2rem;
+    color: #1e3a8a;
+}
+
+.search-description {
+    margin-bottom: 22px;
+    color: #666;
+}
+
+.home-search-controls {
+    display: flex;
+    align-items: stretch;
+    gap: 14px;
+    width: 100%;
+}
+
+.home-search-controls input {
+    flex: 1;
+    min-width: 0;
+    padding: 16px 20px;
+    border: 2px solid #d5d9e2;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 1.05rem;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.home-search-controls input:focus {
+    outline: none;
+    border-color: #1db954;
+    box-shadow: 0 0 0 4px rgba(29, 185, 84, 0.15);
+}
+
+.home-search-controls button {
+    min-width: 130px;
+    padding: 16px 26px;
+    border: none;
+    border-radius: 10px;
+    background: #1db954;
+    color: white;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.home-search-controls button:hover {
+    background: #17a74a;
+    transform: translateY(-1px);
+}
+
+/* ===========================
+   Home Page Mobile
+=========================== */
+
+@media (max-width: 700px) {
+    #search-section {
+        padding: 25px;
+    }
+
+    .home-search-controls {
+        flex-direction: column;
+    }
+
+    .home-search-controls button {
+        width: 100%;
+    }
 }

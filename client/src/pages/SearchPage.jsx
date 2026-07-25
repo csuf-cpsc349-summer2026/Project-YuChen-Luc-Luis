@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { searchArtists } from "../services/spotifyApi.js";
+import { useFavorites } from "../context/FavoritesContext.jsx";
 
 function SearchPage() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+
+    const { toggleFavorite, isFavorite } = useFavorites();
 
     const artistQuery = searchParams.get("artist") || "";
 
@@ -98,6 +101,8 @@ function SearchPage() {
                         ? artist.genres.join(", ")
                         : "Genre not available";
 
+                    const favorited = isFavorite(artist.id);
+
                     return (
                         <article
                             className="artist-result-card"
@@ -125,9 +130,27 @@ function SearchPage() {
                                     ).toLocaleString()}
                                 </p>
 
-                                <Link to={`/artist/${artist.id}`}>
-                                    View Artist
-                                </Link>
+                                <div className="artist-result-actions">
+                                    <Link to={`/artist/${artist.id}`}>
+                                        View Artist
+                                    </Link>
+
+                                    <button
+                                        type="button"
+                                        className={
+                                            favorited
+                                                ? "favorite-btn active"
+                                                : "favorite-btn"
+                                        }
+                                        onClick={() =>
+                                            toggleFavorite(artist)
+                                        }
+                                    >
+                                        {favorited
+                                            ? "★ Remove Favorite"
+                                            : "☆ Add Favorite"}
+                                    </button>
+                                </div>
                             </div>
                         </article>
                     );

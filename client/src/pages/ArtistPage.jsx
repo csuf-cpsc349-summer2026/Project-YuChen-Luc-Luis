@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getArtist } from "../services/artistApi.js";
+import { useFavorites } from "../context/FavoritesContext.jsx";
 
 function ArtistPage() {
     const { id } = useParams();
-    console.log("React artist ID:", id);
 
     const [artist, setArtist] = useState(null);
     const [status, setStatus] = useState("Loading artist...");
+
+    const { toggleFavorite, isFavorite } = useFavorites();
 
     useEffect(() => {
         async function loadArtist() {
@@ -41,6 +43,8 @@ function ArtistPage() {
         ? artist.genres.join(", ")
         : "Genre not available";
 
+    const favorited = isFavorite(artist.id);
+
     return (
         <section className="artist-page">
             {artist.image && (
@@ -67,6 +71,20 @@ function ArtistPage() {
                     <strong>Popularity:</strong>{" "}
                     {artist.popularity ?? "Not available"}
                 </p>
+
+                <button
+                    type="button"
+                    className={
+                        favorited
+                            ? "favorite-btn active"
+                            : "favorite-btn"
+                    }
+                    onClick={() => toggleFavorite(artist)}
+                >
+                    {favorited
+                        ? "★ Remove Favorite"
+                        : "☆ Add Favorite"}
+                </button>
 
                 {artist.spotifyUrl && (
                     <a

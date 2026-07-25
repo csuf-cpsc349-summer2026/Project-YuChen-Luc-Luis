@@ -1,5 +1,78 @@
+import { Link } from "react-router-dom";
+import { useFavorites } from "../context/FavoritesContext.jsx";
+
 function FavoritesPage() {
-    return <h1>Favorites Page</h1>;
+    const { favorites, removeFavorite } = useFavorites();
+
+    return (
+        <section id="favorites-section">
+            <h2>Favorite Artists</h2>
+
+            {favorites.length === 0 ? (
+                <div className="empty-favorites">
+                    <p>You have not added any favorite artists yet.</p>
+
+                    <Link to="/search">
+                        Search for artists
+                    </Link>
+                </div>
+            ) : (
+                <div id="favorite-artists">
+                    {favorites.map((artist) => {
+                        const genres = artist.genres?.length
+                            ? artist.genres.join(", ")
+                            : "Genre not available";
+
+                        return (
+                            <article
+                                className="artist-result-card"
+                                key={artist.id}
+                            >
+                                {artist.image && (
+                                    <img
+                                        src={artist.image}
+                                        alt={artist.name}
+                                        className="artist-result-image"
+                                    />
+                                )}
+
+                                <div className="artist-result-info">
+                                    <h3>{artist.name}</h3>
+
+                                    <p>
+                                        <strong>Genres:</strong> {genres}
+                                    </p>
+
+                                    <p>
+                                        <strong>Followers:</strong>{" "}
+                                        {Number(
+                                            artist.followers || 0
+                                        ).toLocaleString()}
+                                    </p>
+
+                                    <div className="artist-result-actions">
+                                        <Link to={`/artist/${artist.id}`}>
+                                            View Artist
+                                        </Link>
+
+                                        <button
+                                            type="button"
+                                            className="favorite-btn active"
+                                            onClick={() =>
+                                                removeFavorite(artist.id)
+                                            }
+                                        >
+                                            ★ Remove Favorite
+                                        </button>
+                                    </div>
+                                </div>
+                            </article>
+                        );
+                    })}
+                </div>
+            )}
+        </section>
+    );
 }
 
 export default FavoritesPage;

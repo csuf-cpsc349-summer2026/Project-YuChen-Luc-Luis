@@ -13,10 +13,12 @@ function HomePage() {
     });
 
     const [locationError, setLocationError] = useState("");
-    const navigate = useNavigate();
+
     const [weather, setWeather] = useState({
-    temperature: "--",
+        temperature: "--",
     });
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function loadLocation() {
@@ -50,10 +52,11 @@ function HomePage() {
                     temperature: "--",
                 });
 
-                setLocationError("Could not load your location or weather.");
+                setLocationError(
+                    "Could not load your location or weather."
+                );
             }
         }
-        
 
         loadLocation();
     }, []);
@@ -65,7 +68,9 @@ function HomePage() {
             return;
         }
 
-        navigate(`/search?artist=${encodeURIComponent(trimmedArtist)}`);
+        navigate(
+            `/search?artist=${encodeURIComponent(trimmedArtist)}`
+        );
     }
 
     function handleKeyDown(event) {
@@ -76,6 +81,36 @@ function HomePage() {
 
     return (
         <>
+            <section id="search-section">
+                <h2>🎤 Search Artist</h2>
+
+                <p className="search-description">
+                    Search for artists, view their details, and save your
+                    favorites.
+                </p>
+
+                <div className="home-search-controls">
+                    <input
+                        type="text"
+                        id="home-artist-input"
+                        placeholder="Enter artist name..."
+                        value={artistName}
+                        onChange={(event) =>
+                            setArtistName(event.target.value)
+                        }
+                        onKeyDown={handleKeyDown}
+                    />
+
+                    <button
+                        type="button"
+                        id="home-search-btn"
+                        onClick={handleSearch}
+                    >
+                        Search
+                    </button>
+                </div>
+            </section>
+
             <section id="location-section">
                 <h2>📍 Your Current Location</h2>
 
@@ -101,30 +136,10 @@ function HomePage() {
 
                 <div id="weather-card">
                     <p>
-                        <strong>Temperature:</strong> {weather.temperature} °C
+                        <strong>Temperature:</strong>{" "}
+                        {weather.temperature} °C
                     </p>
                 </div>
-            </section>
-
-            <section id="search-section">
-                <h2>🎤 Search Artist</h2>
-
-                <input
-                    type="text"
-                    id="artist-input"
-                    placeholder="Enter artist name..."
-                    value={artistName}
-                    onChange={(event) => setArtistName(event.target.value)}
-                    onKeyDown={handleKeyDown}
-                />
-
-                <button
-                    type="button"
-                    id="search-btn"
-                    onClick={handleSearch}
-                >
-                    Search
-                </button>
             </section>
         </>
     );
