@@ -54,10 +54,12 @@ app.use(
             "temporary-development-session-secret",
         resave: false,
         saveUninitialized: false,
+        rolling: true,
         cookie: {
             httpOnly: true,
             sameSite: "lax",
-            secure: false
+            secure: false,
+            maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
         }
     })
 );
@@ -601,7 +603,7 @@ app.get(
                 }
 
                 res.redirect(
-                    "http://localhost:5173/"
+                    process.env.CLIENT_URL || "http://127.0.0.1:5173"
                 );
             });
         } catch (error) {
