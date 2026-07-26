@@ -5,6 +5,11 @@ import SpotifyWebApi from "spotify-web-api-node";
 
 dotenv.config();
 
+console.log(
+    "Ticketmaster loaded:",
+    Boolean(process.env.TICKETMASTER_API_KEY)
+);
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 

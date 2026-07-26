@@ -88,6 +88,15 @@ function ArtistPage() {
         await toggleFavorite(artist);
     }
 
+    async function handleShowClick(event) {
+        if (!user) {
+            setShowLoginWarning(true);
+            return;
+        }
+
+        await toggleShow(event);
+    }
+
     if (status) {
         return (
             <section>
@@ -239,7 +248,7 @@ function ArtistPage() {
                                                     : "show-save-btn"
                                             }
                                             onClick={() =>
-                                                toggleShow(event)
+                                                handleShowClick(event)
                                             }
                                         >
                                             {saved
