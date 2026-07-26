@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLocation } from "../services/locationApi.js";
-import { getWeather } from "../services/weatherApi.js";
+// import { getCurrentWeather } from "../services/weatherApi.js";
 
 function HomePage() {
     const [artistName, setArtistName] = useState("");
@@ -31,7 +31,7 @@ function HomePage() {
                     country: data.country,
                 });
 
-                const weatherData = await getWeather(
+             /*   const weatherData = await getCurrentWeather(
                     data.latitude,
                     data.longitude
                 );
@@ -39,6 +39,7 @@ function HomePage() {
                 setWeather({
                     temperature: weatherData.temperature,
                 });
+                */
             } catch (error) {
                 console.error(error);
 
