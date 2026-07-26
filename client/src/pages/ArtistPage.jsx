@@ -16,6 +16,7 @@ function ArtistPage() {
     const [artist, setArtist] = useState(null);
     const [status, setStatus] = useState("Loading artist...");
     const [showLoginWarning, setShowLoginWarning] = useState(false);
+    const [listeningRank, setListeningRank] = useState(null);
 
     const [events, setEvents] = useState([]);
     const [eventsLoading, setEventsLoading] = useState(false);
@@ -51,6 +52,37 @@ function ArtistPage() {
         }
 
         loadArtist();
+    }, [id]);
+
+    useEffect(() => {
+        async function loadListeningRank() {
+            try {
+                const response = await fetch(
+                    `${import.meta.env.VITE_API_URL}/api/auth/top-artists`,
+                    {
+                        credentials: "include"
+                    }
+                );
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const data = await response.json();
+
+                const match = data.artists.find(
+                    (artist) => artist.id === id
+                );
+
+                setListeningRank(
+                    match?.rank ?? null
+                );
+            } catch {
+                setListeningRank(null);
+            }
+        }
+
+        loadListeningRank();
     }, [id]);
 
     useEffect(() => {
@@ -116,9 +148,7 @@ function ArtistPage() {
         return null;
     }
 
-    const genres = artist.genres?.length
-        ? artist.genres.join(", ")
-        : "Genre not available";
+    
 
     const favorited = isFavorite(artist.id);
 
@@ -161,23 +191,14 @@ function ArtistPage() {
                 <div className="artist-page-info">
                     <h2>{artist.name}</h2>
 
-                    <p>
-                        <strong>Genres:</strong>{" "}
-                        {genres}
-                    </p>
-
-                    <p>
-                        <strong>Followers:</strong>{" "}
-                        {Number(
-                            artist.followers || 0
-                        ).toLocaleString()}
-                    </p>
-
-                    <p>
-                        <strong>Popularity:</strong>{" "}
-                        {artist.popularity ??
-                            "Not available"}
-                    </p>
+                    {listeningRank !== null && (
+                        <p>
+                            <strong>
+                                Your Listening Rank:
+                            </strong>{" "}
+                            #{listeningRank}
+                        </p>
+                    )}
 
                     <div className="artist-page-actions">
                         <button

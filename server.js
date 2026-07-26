@@ -70,13 +70,30 @@ app.get("/", (req, res) => {
     res.send("Music Discovery API is running.");
 });
 
+let spotifyTokenExpirationTime = 0;
+
 async function authenticateSpotify() {
+    const now = Date.now();
+
+    if (
+        spotifyApi.getAccessToken() &&
+        now < spotifyTokenExpirationTime
+    ) {
+        return;
+    }
+
     const tokenData =
         await spotifyApi.clientCredentialsGrant();
 
     spotifyApi.setAccessToken(
         tokenData.body.access_token
     );
+
+    const expiresInSeconds =
+        tokenData.body.expires_in ?? 3600;
+
+    spotifyTokenExpirationTime =
+        now + (expiresInSeconds - 60) * 1000;
 }
 
 app.get("/api/search", async (req, res) => {
@@ -138,20 +155,21 @@ app.get("/api/artist/:id", async (req, res) => {
 
         await authenticateSpotify();
 
-        const [artistData, albumsData] =
-            await Promise.all([
-                spotifyApi.getArtist(artistId),
+        const [
+            artistData,
+            albumsData
+        ] = await Promise.all([
+            spotifyApi.getArtist(artistId),
 
-                spotifyApi.getArtistAlbums(
-                    artistId,
-                    {
-                        include_groups:
-                            "album,single",
-                        market: "US",
-                        limit: 10
-                    }
-                )
-            ]);
+            spotifyApi.getArtistAlbums(
+                artistId,
+                {
+                    include_groups: "album,single",
+                    market: "US",
+                    limit: 10
+                }
+            )
+        ]);
 
         const artist = artistData.body;
 
@@ -186,13 +204,10 @@ app.get("/api/artist/:id", async (req, res) => {
             image:
                 artist.images?.[0]?.url || "",
             spotifyUrl:
-                artist.external_urls?.spotify || "",
-            genres: artist.genres || [],
-            popularity:
-                artist.popularity ?? null,
-            followers:
-                artist.followers?.total ?? 0,
+                artist.external_urls?.spotify ||
+                "",
             albums
+            
         });
     } catch (error) {
         console.error(
