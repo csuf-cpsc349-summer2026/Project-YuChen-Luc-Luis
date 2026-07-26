@@ -24,6 +24,8 @@ function HomePage() {
     useEffect(() => {
         async function loadLocationAndWeather() {
             try {
+                setLocationError("");
+
                 const data = await getLocation();
 
                 setLocation({
@@ -32,20 +34,26 @@ function HomePage() {
                     country: data.country,
                 });
 
+                const params = new URLSearchParams({
+                    city: data.city,
+                    state: data.region,
+                });
+
                 const weatherResponse = await fetch(
-                    `${import.meta.env.VITE_API_URL}/api/weather/current?city=${encodeURIComponent(
-                        data.city
-                    )}&state=${encodeURIComponent(data.region)}`,
+                    `http://localhost:3000/api/weather/current?${params}`,
                     {
                         credentials: "include",
                     }
                 );
 
-                if (!weatherResponse.ok) {
-                    throw new Error("Could not load current weather.");
-                }
-
                 const weatherData = await weatherResponse.json();
+
+                if (!weatherResponse.ok) {
+                    throw new Error(
+                        weatherData.error ||
+                        "Could not load current weather."
+                    );
+                }
 
                 setWeather({
                     temperature: weatherData.temperature,
@@ -53,7 +61,10 @@ function HomePage() {
                     windSpeed: weatherData.windSpeed,
                 });
             } catch (error) {
-                console.error(error);
+                console.error(
+                    "Homepage location/weather error:",
+                    error
+                );
 
                 setLocation({
                     city: "Unavailable",
@@ -142,7 +153,11 @@ function HomePage() {
                         <strong>Country:</strong> {location.country}
                     </p>
 
-                    {locationError && <p>{locationError}</p>}
+                    {locationError && (
+                        <p className="error-message">
+                            {locationError}
+                        </p>
+                    )}
                 </div>
             </section>
 
