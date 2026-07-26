@@ -1,4 +1,5 @@
 import { useShows } from "../context/ShowsContext.jsx";
+import EventWeather from "../components/EventWeather.jsx";
 
 function ShowsPage() {
     const { savedShows, removeShow } = useShows();
@@ -14,6 +15,7 @@ function ShowsPage() {
             {savedShows.length === 0 ? (
                 <div className="empty-shows">
                     <p>You have not saved any shows yet.</p>
+
                     <p>
                         Open an artist page and click “Save Show” on an
                         upcoming concert.
@@ -59,6 +61,12 @@ function ShowsPage() {
                                         .join(", ") || "Unavailable"}
                                 </p>
 
+                                <EventWeather
+                                    city={event.city}
+                                    state={event.state}
+                                    date={event.date}
+                                />
+
                                 <div className="event-actions">
                                     <button
                                         type="button"
@@ -70,7 +78,7 @@ function ShowsPage() {
                                         Remove Show
                                     </button>
 
-                                    {event.ticketUrl && (
+                                    {event.ticketUrl ? (
                                         <a
                                             href={event.ticketUrl}
                                             target="_blank"
@@ -78,6 +86,14 @@ function ShowsPage() {
                                         >
                                             View Tickets
                                         </a>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            className="ticket-unavailable-btn"
+                                            disabled
+                                        >
+                                            Tickets Unavailable
+                                        </button>
                                     )}
                                 </div>
                             </div>
