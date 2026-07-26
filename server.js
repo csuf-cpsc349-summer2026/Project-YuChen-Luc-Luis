@@ -2,18 +2,34 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import SpotifyWebApi from "spotify-web-api-node";
-
+import session from "express-session";
 dotenv.config();
+import crypto from "crypto";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 const spotifyApi = new SpotifyWebApi({
     clientId: process.env.SPOTIFY_CLIENT_ID,
-    clientSecret: process.env.SPOTIFY_CLIENT_SECRET
+    clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+    redirectUri: process.env.SPOTIFY_REDIRECT_URI
 });
 
-app.use(cors());
+app.use(
+    cors({
+        origin: "http://127.0.0.1:5173",
+        credentials: true
+    })
+);
+
+app.use(
+    session({
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false
+    })
+);
+
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -77,8 +93,37 @@ app.get("/api/artist/:id", async (request, response) => {
 
         await authenticateSpotify();
 
-        const artistData = await spotifyApi.getArtist(artistId);
+        const [artistData, albumsData] = await Promise.all([
+            spotifyApi.getArtist(artistId),
+
+            spotifyApi.getArtistAlbums(artistId, {
+                include_groups: "album,single",
+                market: "US",
+                limit: 10
+            })
+        ]);
+
         const artist = artistData.body;
+
+        const albums = albumsData.body.items
+            .filter(
+                (album, index, allAlbums) =>
+                    index ===
+                    allAlbums.findIndex(
+                        (item) =>
+                            item.name.toLowerCase() ===
+                            album.name.toLowerCase()
+                    )
+            )
+            .slice(0, 6)
+            .map((album) => ({
+                id: album.id,
+                name: album.name,
+                image: album.images?.[0]?.url || "",
+                releaseDate: album.release_date || "",
+                albumType: album.album_type || "",
+                spotifyUrl: album.external_urls?.spotify || ""
+            }));
 
         return response.json({
             id: artist.id,
@@ -87,20 +132,18 @@ app.get("/api/artist/:id", async (request, response) => {
             spotifyUrl: artist.external_urls?.spotify || "",
             genres: artist.genres || [],
             popularity: artist.popularity ?? null,
-            followers: artist.followers?.total ?? 0
+            followers: artist.followers?.total ?? 0,
+            albums
         });
     } catch (error) {
-        console.error(
-            "Artist endpoint error:",
-            error.body || error.message
-        );
+        console.error("Artist endpoint error:");
+        console.error(error);
 
         return response.status(error.statusCode || 500).json({
             error: "Unable to load artist information."
         });
     }
 });
-
 app.get("/api/events", async (req, res) => {
     const artist = req.query.artist?.trim();
 
@@ -341,6 +384,168 @@ app.get("/api/weather", async (req, res) => {
                 "Unable to retrieve venue weather."
         });
     }
+});
+
+app.get("/api/auth/login", (req, res) => {
+    const state = crypto.randomUUID();
+
+    req.session.spotifyState = state;
+
+    const scopes = [
+        "user-read-private",
+        "user-read-email",
+        "user-top-read"
+    ];
+
+    const authorizeUrl = spotifyApi.createAuthorizeURL(
+        scopes,
+        state
+    );
+
+    res.redirect(authorizeUrl);
+});
+
+app.get("/api/auth/callback", async (req, res) => {
+    const code = req.query.code;
+    const state = req.query.state;
+
+    if (!code) {
+        return res.status(400).send("Spotify authorization code is missing.");
+    }
+
+    if (!state || state !== req.session.spotifyState) {
+        return res.status(400).send("Spotify state verification failed.");
+    }
+
+    try {
+        const tokenData = await spotifyApi.authorizationCodeGrant(code);
+
+        const accessToken = tokenData.body.access_token;
+        const refreshToken = tokenData.body.refresh_token;
+
+        req.session.spotifyAccessToken = accessToken;
+        req.session.spotifyRefreshToken = refreshToken;
+
+        spotifyApi.setAccessToken(accessToken);
+        spotifyApi.setRefreshToken(refreshToken);
+
+        delete req.session.spotifyState;
+
+        req.session.save((error) => {
+            if (error) {
+                console.error("Session save error:", error);
+                return res.status(500).send("Unable to save session.");
+            }
+
+            res.redirect("http://127.0.0.1:5173/");
+        });
+
+
+    } catch (error) {
+        console.error(
+            "Spotify callback error:",
+            error.body || error.message
+        );
+
+        res.status(500).send("Spotify authorization failed.");
+    }
+});
+
+app.get("/api/auth/me", async (req, res) => {
+    const accessToken = req.session.spotifyAccessToken;
+
+    if (!accessToken) {
+        return res.status(401).json({
+            connected: false,
+            error: "Spotify account is not connected."
+        });
+    }
+
+    try {
+        spotifyApi.setAccessToken(accessToken);
+
+        const userData = await spotifyApi.getMe();
+        const user = userData.body;
+
+        return res.json({
+            connected: true,
+            user: {
+                id: user.id,
+                displayName: user.display_name,
+                image: user.images?.[0]?.url || "",
+                spotifyUrl: user.external_urls?.spotify || ""
+            }
+        });
+    } catch (error) {
+        console.error(
+            "Spotify profile error:",
+            error.body || error.message
+        );
+
+        return res.status(error.statusCode || 500).json({
+            connected: false,
+            error: "Unable to load Spotify profile."
+        });
+    }
+});
+
+app.get("/api/auth/top-artists", async (req, res) => {
+    const accessToken = req.session.spotifyAccessToken;
+
+    if (!accessToken) {
+        return res.status(401).json({
+            error: "Spotify account is not connected."
+        });
+    }
+
+    try {
+        spotifyApi.setAccessToken(accessToken);
+
+        const topArtistsData = await spotifyApi.getMyTopArtists({
+            limit: 10,
+            time_range: "medium_term"
+        });
+
+        const artists = topArtistsData.body.items.map((artist) => ({
+            id: artist.id,
+            name: artist.name,
+            image: artist.images?.[0]?.url || "",
+            spotifyUrl: artist.external_urls?.spotify || ""
+        }));
+
+        return res.json({
+            artists
+        });
+    } catch (error) {
+        console.error(
+            "Spotify top artists error:",
+            error.body || error.message
+        );
+
+        return res.status(error.statusCode || 500).json({
+            error: "Unable to load your top Spotify artists."
+        });
+    }
+});
+
+app.post("/api/auth/logout", (req, res) => {
+    delete req.session.spotifyAccessToken;
+    delete req.session.spotifyRefreshToken;
+    delete req.session.spotifyState;
+
+    req.session.save((error) => {
+        if (error) {
+            console.error("Session save error:", error);
+
+            return res.status(500).json({
+                error: "Unable to disconnect Spotify."
+            });
+        }
+
+        res.json({
+            success: true
+        });
+    });
 });
 
 app.listen(PORT, () => {

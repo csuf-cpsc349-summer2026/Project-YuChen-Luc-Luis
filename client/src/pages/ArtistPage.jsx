@@ -23,6 +23,7 @@ function ArtistPage() {
         async function loadArtist() {
             try {
                 const data = await getArtist(id);
+                console.log("Artist data from backend:", data);
 
                 setArtist(data);
                 setStatus("");
@@ -84,6 +85,25 @@ function ArtistPage() {
 
     const favorited = isFavorite(artist.id);
 
+    const latestRelease = artist.albums?.[0] ?? null;
+    
+    const formattedReleaseDate = latestRelease?.releaseDate
+    
+    ? new Date(latestRelease.releaseDate).toLocaleDateString(
+          "en-US",
+          {
+              month: "long",
+              day: "numeric",
+              year: "numeric"
+          }
+      )
+    : "Date unavailable";
+
+    const formattedType = latestRelease?.albumType
+    ? latestRelease.albumType.charAt(0).toUpperCase() +
+      latestRelease.albumType.slice(1)
+    : "Release";
+
     return (
         <>
             <section className="artist-page">
@@ -114,39 +134,79 @@ function ArtistPage() {
                         {artist.popularity ?? "Not available"}
                     </p>
 
-                    <button
-                        type="button"
-                        className={
-                            favorited
-                                ? "favorite-btn active"
-                                : "favorite-btn"
-                        }
-                        onClick={() => toggleFavorite(artist)}
-                    >
-                        {favorited
-                            ? "★ Remove Favorite"
-                            : "☆ Add Favorite"}
-                    </button>
-
-                    {artist.spotifyUrl ? (
-                        <a
-                            href={artist.spotifyUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                        >
-                            Open on Spotify
-                        </a>
-                    ) : (
+                    <div className="artist-page-actions">
                         <button
                             type="button"
-                            className="external-link-unavailable"
-                            disabled
+                            className={
+                                favorited
+                                    ? "favorite-btn active"
+                                    : "favorite-btn"
+                            }
+                            onClick={() => toggleFavorite(artist)}
                         >
-                            Spotify Page Unavailable
+                            {favorited
+                                ? "★ Remove Favorite"
+                                : "☆ Add Favorite"}
                         </button>
-                    )}
+
+                        {artist.spotifyUrl ? (
+                            <a
+                                href={artist.spotifyUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                Open on Spotify
+                            </a>
+                        ) : (
+                            <button
+                                type="button"
+                                className="external-link-unavailable"
+                                disabled
+                            >
+                                Spotify Page Unavailable
+                            </button>
+                        )}
+                    </div>
                 </div>
             </section>
+
+            {latestRelease && (
+                <section className="latest-release-section">
+                    <h2>💿 Latest Release</h2>
+
+                    <article className="latest-release-card">
+                        {latestRelease.image && (
+                            <img
+                                src={latestRelease.image}
+                                alt={latestRelease.name}
+                                className="latest-release-image"
+                            />
+                        )}
+
+                        <div className="latest-release-info">
+                            <h3>{latestRelease.name}</h3>
+
+                            <p>
+                                <strong>Type:</strong> {formattedType}
+                            </p>
+
+                            <p>
+                                <strong>Released:</strong> {formattedReleaseDate}
+                            </p>
+
+                            {latestRelease.spotifyUrl && (
+                                <a
+                                    href={latestRelease.spotifyUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    Open Release on Spotify
+                                </a>
+                            )}
+                        </div>
+                    </article>
+                </section>
+            )}
 
             <section className="artist-shows-section">
                 <h2>🎟️ Upcoming Shows</h2>
