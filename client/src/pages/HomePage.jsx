@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLocation } from "../services/locationApi.js";
-// import { getCurrentWeather } from "../services/weatherApi.js";
 
 function HomePage() {
     const [artistName, setArtistName] = useState("");
@@ -16,12 +15,14 @@ function HomePage() {
 
     const [weather, setWeather] = useState({
         temperature: "--",
+        feelsLike: "--",
+        windSpeed: "--",
     });
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        async function loadLocation() {
+        async function loadLocationAndWeather() {
             try {
                 const data = await getLocation();
 
@@ -31,15 +32,26 @@ function HomePage() {
                     country: data.country,
                 });
 
-             /*   const weatherData = await getCurrentWeather(
-                    data.latitude,
-                    data.longitude
+                const weatherResponse = await fetch(
+                    `${import.meta.env.VITE_API_URL}/api/weather/current?city=${encodeURIComponent(
+                        data.city
+                    )}&state=${encodeURIComponent(data.region)}`,
+                    {
+                        credentials: "include",
+                    }
                 );
+
+                if (!weatherResponse.ok) {
+                    throw new Error("Could not load current weather.");
+                }
+
+                const weatherData = await weatherResponse.json();
 
                 setWeather({
                     temperature: weatherData.temperature,
+                    feelsLike: weatherData.feelsLike,
+                    windSpeed: weatherData.windSpeed,
                 });
-                */
             } catch (error) {
                 console.error(error);
 
@@ -51,6 +63,8 @@ function HomePage() {
 
                 setWeather({
                     temperature: "--",
+                    feelsLike: "--",
+                    windSpeed: "--",
                 });
 
                 setLocationError(
@@ -59,7 +73,7 @@ function HomePage() {
             }
         }
 
-        loadLocation();
+        loadLocationAndWeather();
     }, []);
 
     function handleSearch() {
@@ -138,7 +152,17 @@ function HomePage() {
                 <div id="weather-card">
                     <p>
                         <strong>Temperature:</strong>{" "}
-                        {weather.temperature} °C
+                        {weather.temperature} °F
+                    </p>
+
+                    <p>
+                        <strong>Feels Like:</strong>{" "}
+                        {weather.feelsLike} °F
+                    </p>
+
+                    <p>
+                        <strong>Wind Speed:</strong>{" "}
+                        {weather.windSpeed} mph
                     </p>
                 </div>
             </section>
