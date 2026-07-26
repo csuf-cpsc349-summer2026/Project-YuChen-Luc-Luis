@@ -124,9 +124,27 @@ function InsightsPage() {
                 )}
 
                 {artistError && (
-                    <p className="insight-error">
-                        {artistError}
-                    </p>
+                    <div className="spotify-connect-card">
+                        <h3>Spotify Personalization</h3>
+
+                        <p>
+                            Connect your Spotify account to unlock
+                            personalized insights.
+                        </p>
+
+                        <ul>
+                            <li>Your Top 10 Artists</li>
+                            <li>Your Listening Rank on artist pages</li>
+                            <li>Personalized listening insights</li>
+                        </ul>
+
+                        <a
+                            className="spotify-connect-button"
+                            href={`${import.meta.env.VITE_API_URL}/api/auth/login`}
+                        >
+                            Connect Spotify
+                        </a>
+                    </div>
                 )}
 
                 {!loadingArtists &&

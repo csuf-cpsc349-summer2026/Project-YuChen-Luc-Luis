@@ -1162,3 +1162,51 @@ main > section {
         grid-template-columns: 1fr;
     }
 }
+
+/* ==========================
+   Spotify Connect Card
+========================== */
+
+.spotify-connect-card {
+    max-width: 700px;
+    margin: 2rem auto;
+    padding: 2rem;
+    text-align: center;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.spotify-connect-card h3 {
+    margin-bottom: 1rem;
+}
+
+.spotify-connect-card p {
+    margin-bottom: 1rem;
+}
+
+.spotify-connect-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0;
+}
+
+.spotify-connect-card li {
+    margin: 0.5rem 0;
+}
+
+.spotify-connect-button {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background: #1DB954;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: opacity 0.2s ease;
+}
+
+.spotify-connect-button:hover {
+    opacity: 0.9;
+}

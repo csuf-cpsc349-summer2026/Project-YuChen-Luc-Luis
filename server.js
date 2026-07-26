@@ -72,6 +72,9 @@ app.get("/", (req, res) => {
 
 let spotifyTokenExpirationTime = 0;
 
+const TOP_ARTISTS_CACHE_DURATION =
+    1000 * 60 * 60 * 10; // 10 hours
+
 async function authenticateSpotify() {
     const now = Date.now();
 
@@ -840,8 +843,7 @@ app.get(
     "/api/auth/top-artists",
     async (req, res) => {
         const accessToken =
-            req.session
-                .spotifyAccessToken;
+            req.session.spotifyAccessToken;
 
         if (!accessToken) {
             return res
@@ -852,19 +854,34 @@ app.get(
                 });
         }
 
+        const cachedTopArtists =
+            req.session.topArtistsCache;
+
+        if (
+            cachedTopArtists &&
+            Date.now() <
+                cachedTopArtists.expiresAt
+        ) {
+            console.log(
+                "Serving cached top artists"
+            );
+
+            return res.json({
+                artists:
+                    cachedTopArtists.artists
+            });
+        }
+
         try {
             spotifyApi.setAccessToken(
                 accessToken
             );
 
             const topArtistsData =
-                await spotifyApi.getMyTopArtists(
-                    {
-                        limit: 10,
-                        time_range:
-                            "medium_term"
-                    }
-                );
+                await spotifyApi.getMyTopArtists({
+                    limit: 10,
+                    time_range: "medium_term"
+                });
 
             const artists =
                 topArtistsData.body.items.map(
@@ -876,14 +893,21 @@ app.get(
                                 ?.url || "",
                         rank: index + 1,
                         rankScore:
-                            topArtistsData.body.items.length -
+                            topArtistsData.body
+                                .items.length -
                             index,
                         spotifyUrl:
                             artist.external_urls
-                                ?.spotify ||
-                            ""
+                                ?.spotify || ""
                     })
                 );
+
+            req.session.topArtistsCache = {
+                artists,
+                expiresAt:
+                    Date.now() +
+                    TOP_ARTISTS_CACHE_DURATION
+            };
 
             return res.json({
                 artists
@@ -918,6 +942,8 @@ app.post(
 
         delete req.session
             .spotifyState;
+        delete req.session
+            .topArtistsCache;
 
         req.session.save((error) => {
             if (error) {
