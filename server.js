@@ -145,10 +145,22 @@ app.get("/api/events", async (req, res) => {
         const formattedEvents = events.map((event) => {
             const venue = event._embedded?.venues?.[0];
 
+            const eventImage =
+                event.images?.find(
+                    (image) =>
+                        image.ratio === "16_9" &&
+                        image.width >= 640
+                )?.url ||
+                event.images?.find(
+                    (image) => image.ratio === "16_9"
+                )?.url ||
+                event.images?.[0]?.url ||
+                "";
+
             return {
                 id: event.id,
                 name: event.name,
-                image: event.images?.[0]?.url ?? "",
+                image: eventImage,
                 date: event.dates?.start?.localDate ?? "",
                 time: event.dates?.start?.localTime ?? "",
                 venue: venue?.name ?? "Venue unavailable",
@@ -161,14 +173,172 @@ app.get("/api/events", async (req, res) => {
             };
         });
 
-        res.json({
+        return res.json({
             events: formattedEvents
         });
     } catch (error) {
         console.error("Ticketmaster error:", error);
 
-        res.status(500).json({
+        return res.status(500).json({
             error: "Could not load Ticketmaster events."
+        });
+    }
+});
+
+app.get("/api/weather", async (req, res) => {
+    const city = req.query.city?.trim();
+    const state = req.query.state?.trim();
+    const date = req.query.date?.trim();
+
+    if (!city) {
+        return res.status(400).json({
+            error: "A venue city is required."
+        });
+    }
+
+    if (!date) {
+        return res.status(400).json({
+            error: "An event date is required."
+        });
+    }
+
+    try {
+        const eventDate = new Date(`${date}T00:00:00`);
+
+        if (Number.isNaN(eventDate.getTime())) {
+            return res.status(400).json({
+                error: "The event date is invalid."
+            });
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const millisecondsPerDay = 1000 * 60 * 60 * 24;
+        const daysAway = Math.round(
+            (eventDate.getTime() - today.getTime()) /
+                millisecondsPerDay
+        );
+
+        if (daysAway < 0 || daysAway > 15) {
+            return res.json({
+                available: false,
+                message: "Forecast not available yet."
+            });
+        }
+
+        const geocodeParams = new URLSearchParams({
+            name: city,
+            count: "10",
+            language: "en",
+            format: "json",
+            countryCode: "US"
+        });
+
+        const geocodeResponse = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?${geocodeParams}`
+        );
+
+        const geocodeData = await geocodeResponse.json();
+
+        if (!geocodeResponse.ok) {
+            console.error(
+                "Open-Meteo geocoding response:",
+                geocodeData
+            );
+
+            throw new Error("Unable to locate the venue city.");
+        }
+
+        const locations = geocodeData.results ?? [];
+        const requestedState = state?.toLowerCase() ?? "";
+
+        const location =
+            locations.find((result) => {
+                const adminName =
+                    result.admin1?.toLowerCase() ?? "";
+
+                const adminCode =
+                    result.admin1_code
+                        ?.split("-")
+                        .at(-1)
+                        ?.toLowerCase() ?? "";
+
+                return (
+                    !requestedState ||
+                    adminName === requestedState ||
+                    adminName.startsWith(requestedState) ||
+                    adminCode === requestedState
+                );
+            }) ?? locations[0];
+
+        if (!location) {
+            return res.status(404).json({
+                available: false,
+                message: "Venue location could not be found."
+            });
+        }
+
+        const weatherParams = new URLSearchParams({
+            latitude: String(location.latitude),
+            longitude: String(location.longitude),
+            daily: [
+                "weather_code",
+                "temperature_2m_max",
+                "temperature_2m_min",
+                "precipitation_probability_max"
+            ].join(","),
+            temperature_unit: "fahrenheit",
+            timezone: "auto",
+            start_date: date,
+            end_date: date
+        });
+
+        const weatherResponse = await fetch(
+            `https://api.open-meteo.com/v1/forecast?${weatherParams}`
+        );
+
+        const weatherData = await weatherResponse.json();
+
+        if (!weatherResponse.ok) {
+            console.error(
+                "Open-Meteo weather response:",
+                weatherData
+            );
+
+            throw new Error("Unable to retrieve the forecast.");
+        }
+
+        if (!weatherData.daily?.time?.length) {
+            return res.json({
+                available: false,
+                message: "Forecast not available yet."
+            });
+        }
+
+        return res.json({
+            available: true,
+            date: weatherData.daily.time[0],
+            weatherCode: weatherData.daily.weather_code[0],
+            high: weatherData.daily.temperature_2m_max[0],
+            low: weatherData.daily.temperature_2m_min[0],
+            precipitationChance:
+                weatherData.daily.precipitation_probability_max[0],
+            location: {
+                city: location.name,
+                state: location.admin1 ?? state ?? ""
+            }
+        });
+    } catch (error) {
+        console.error(
+            "Weather route error:",
+            error.message
+        );
+
+        return res.status(500).json({
+            error:
+                error.message ||
+                "Unable to retrieve venue weather."
         });
     }
 });

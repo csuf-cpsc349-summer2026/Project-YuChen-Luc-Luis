@@ -4,6 +4,7 @@ import { getArtist } from "../services/artistApi.js";
 import { useFavorites } from "../context/FavoritesContext.jsx";
 import { searchEvents } from "../services/ticketmasterApi.js";
 import { useShows } from "../context/ShowsContext.jsx";
+import EventWeather from "../components/EventWeather.jsx";
 
 function ArtistPage() {
     const { id } = useParams();
@@ -200,6 +201,12 @@ function ArtistPage() {
                                             .join(", ") ||
                                             "Unavailable"}
                                     </p>
+
+                                    <EventWeather
+                                        city={event.city}
+                                        state={event.state}
+                                        date={event.date}
+                                    />
 
                                     <div className="event-actions">
                                         <button
