@@ -103,14 +103,11 @@ app.get("/api/search", async (req, res) => {
                     name: artist.name,
                     image:
                         artist.images?.[0]?.url || "",
-                    genres: artist.genres || [],
                     popularity:
-                        artist.popularity ?? null,
-                    followers:
-                        artist.followers?.total ?? 0,
+                        artist.popularity ?? 0,
                     spotifyUrl:
-                        artist.external_urls?.spotify ||
-                        ""
+                        artist.external_urls
+                            ?.spotify || ""
                 })
             );
 
@@ -324,6 +321,146 @@ app.get("/api/events", async (req, res) => {
         });
     }
 });
+
+app.get(
+    "/api/insights/concerts-by-state",
+    async (req, res) => {
+        if (!process.env.TICKETMASTER_API_KEY) {
+            return res.status(500).json({
+                error: "Ticketmaster API key is missing."
+            });
+        }
+
+        try {
+            const now = new Date()
+                .toISOString()
+                .replace(/\.\d{3}Z$/, "Z");
+
+            const params = new URLSearchParams({
+                apikey:
+                    process.env.TICKETMASTER_API_KEY,
+                classificationName: "music",
+                countryCode: "US",
+                startDateTime: now,
+                sort: "date,asc",
+                size: "200"
+            });
+
+            const url =
+                `https://app.ticketmaster.com/discovery/v2/events.json?${params}`;
+
+            console.log(
+                "Concert insights URL:",
+                url.replace(
+                    process.env.TICKETMASTER_API_KEY,
+                    "HIDDEN_API_KEY"
+                )
+            );
+
+            const ticketmasterResponse =
+                await fetch(url);
+
+            const ticketmasterData =
+                await ticketmasterResponse.json();
+
+            if (!ticketmasterResponse.ok) {
+                console.error(
+                    "Ticketmaster insights response:",
+                    ticketmasterData
+                );
+
+                return res
+                    .status(
+                        ticketmasterResponse.status
+                    )
+                    .json({
+                        error:
+                            ticketmasterData
+                                .fault?.faultstring ||
+                            ticketmasterData
+                                .message ||
+                            "Ticketmaster request failed.",
+                        details:
+                            ticketmasterData
+                    });
+            }
+
+            const events =
+                ticketmasterData._embedded
+                    ?.events ?? [];
+
+            const stateCounts =
+                events.reduce(
+                    (counts, event) => {
+                        const venue =
+                            event._embedded
+                                ?.venues?.[0];
+
+                        const state =
+                            venue?.state
+                                ?.name ||
+                            venue?.state
+                                ?.stateCode;
+
+                        if (!state) {
+                            return counts;
+                        }
+
+                        counts[state] =
+                            (counts[state] ||
+                                0) + 1;
+
+                        return counts;
+                    },
+                    {}
+                );
+
+            const concertsByState =
+                Object.entries(
+                    stateCounts
+                )
+                    .map(
+                        ([
+                            state,
+                            concerts
+                        ]) => ({
+                            state,
+                            concerts
+                        })
+                    )
+                    .sort(
+                        (a, b) =>
+                            b.concerts -
+                            a.concerts
+                    )
+                    .slice(0, 10);
+
+            return res.json({
+                concertsByState,
+                totalConcerts:
+                    events.length,
+                statesRepresented:
+                    Object.keys(
+                        stateCounts
+                    ).length,
+                busiestState:
+                    concertsByState[0]
+                        ?.state || null
+            });
+        } catch (error) {
+            console.error(
+                "Concert insights error:",
+                error
+            );
+
+            return res.status(500).json({
+                error:
+                    error.message ||
+                    "Unable to load concert insights."
+            });
+        }
+    }
+);
 
 app.get("/api/weather", async (req, res) => {
     const city = req.query.city?.trim();
@@ -716,12 +853,16 @@ app.get(
 
             const artists =
                 topArtistsData.body.items.map(
-                    (artist) => ({
+                    (artist, index) => ({
                         id: artist.id,
                         name: artist.name,
                         image:
                             artist.images?.[0]
                                 ?.url || "",
+                        rank: index + 1,
+                        rankScore:
+                            topArtistsData.body.items.length -
+                            index,
                         spotifyUrl:
                             artist.external_urls
                                 ?.spotify ||

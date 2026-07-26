@@ -8,6 +8,7 @@ import FavoritesPage from "./pages/FavoritesPage.jsx";
 import ShowsPage from "./pages/ShowsPage.jsx";
 import ArtistPage from "./pages/ArtistPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
+import InsightsPage from "./pages/InsightsPage.jsx";
 
 function App() {
     return (
@@ -24,6 +25,11 @@ function App() {
                     <Route
                         path="/search"
                         element={<SearchPage />}
+                    />
+
+                    <Route
+                        path="/insights"
+                        element={<InsightsPage />}
                     />
 
                     <Route

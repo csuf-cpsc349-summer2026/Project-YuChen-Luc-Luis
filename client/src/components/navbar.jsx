@@ -169,6 +169,19 @@ function Navbar() {
                         </NavLink>
                     </li>
 
+                    <li>
+                        <NavLink
+                            to="/insights"
+                            className={({ isActive }) =>
+                                isActive ? "active" : ""
+                            }
+                        >
+                            Insights
+                        </NavLink>
+                    </li>
+                        
+
+
                     {!checkingSpotify && (
                         <li className="spotify-nav-item">
                             {spotifyUser ? (
