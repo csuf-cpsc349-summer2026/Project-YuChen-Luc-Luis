@@ -548,6 +548,104 @@ app.post("/api/auth/logout", (req, res) => {
     });
 });
 
+app.get("/api/weather/current", async (req, res) => {
+    const city = req.query.city?.trim();
+    const state = req.query.state?.trim();
+
+    if (!city) {
+        return res.status(400).json({
+            error: "A city is required."
+        });
+    }
+
+    try {
+        const geocodeParams = new URLSearchParams({
+            name: city,
+            count: "10",
+            language: "en",
+            format: "json",
+            countryCode: "US"
+        });
+
+        const geocodeResponse = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?${geocodeParams}`
+        );
+
+        const geocodeData = await geocodeResponse.json();
+        const locations = geocodeData.results ?? [];
+        const requestedState = state?.toLowerCase() ?? "";
+
+        const location =
+            locations.find((result) => {
+                const adminName =
+                    result.admin1?.toLowerCase() ?? "";
+
+                const adminCode =
+                    result.admin1_code
+                        ?.split("-")
+                        .at(-1)
+                        ?.toLowerCase() ?? "";
+
+                return (
+                    !requestedState ||
+                    adminName === requestedState ||
+                    adminName.startsWith(requestedState) ||
+                    adminCode === requestedState
+                );
+            }) ?? locations[0];
+
+        if (!location) {
+            return res.status(404).json({
+                error: "Location could not be found."
+            });
+        }
+
+        const weatherParams = new URLSearchParams({
+            latitude: String(location.latitude),
+            longitude: String(location.longitude),
+            current: [
+                "temperature_2m",
+                "apparent_temperature",
+                "weather_code",
+                "precipitation",
+                "wind_speed_10m"
+            ].join(","),
+            temperature_unit: "fahrenheit",
+            wind_speed_unit: "mph",
+            timezone: "auto"
+        });
+
+        const weatherResponse = await fetch(
+            `https://api.open-meteo.com/v1/forecast?${weatherParams}`
+        );
+
+        const weatherData = await weatherResponse.json();
+
+        if (!weatherResponse.ok || !weatherData.current) {
+            throw new Error("Current weather is unavailable.");
+        }
+
+        return res.json({
+            available: true,
+            temperature: weatherData.current.temperature_2m,
+            feelsLike: weatherData.current.apparent_temperature,
+            weatherCode: weatherData.current.weather_code,
+            precipitation: weatherData.current.precipitation,
+            windSpeed: weatherData.current.wind_speed_10m,
+            location: {
+                city: location.name,
+                state: location.admin1 ?? state ?? ""
+            }
+        });
+    } catch (error) {
+        console.error("Current weather route error:", error);
+
+        return res.status(500).json({
+            error: "Unable to retrieve current weather."
+        });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
