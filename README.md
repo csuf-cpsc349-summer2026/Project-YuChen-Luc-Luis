@@ -1,40 +1,33 @@
-<h1> CPSC 349 Final Project </h1>
-<h2>Event Finder – Music Discoery & Live Concert Tracker </h2>
-<br>
+# CPSC 349 Final Project
+### California State University, Fullerton
+## Event Finder – Music Discoery & Live Concert Tracker
 
-# Project Members
 
-YuChen Chung
-<br>
-Luc Brown
-<br>
-Luis E. Aldana Jr.
-<b3>
+## Project Members
 
-# Link to Access our Website
+YuChen Chung  
+Luc Brown  
+Luis E. Aldana Jr.  
+
+## Link to Access our Website
 https://csuf-cpsc349-summer2026.github.io/Project-YuChen-Luc-Luis/
-<br>
-<h3>Features</h3>
+### Features
 1. Geo-Location & Current Weather
-<br>
 2. Spotify Artist & Discography Search
-<br>
 3. Ticketmaster Event Finder
-<br>
 4. Concert Night Weather Forecast
-<br>
-<h3>Tech Stack & Dependencies</h3>
-<h4>Front-End</h4>
+### Tech Stack & Dependencies
+#### Front-End
 
     - HTML 5
     - CSS3
     - Javascript: (fetch / async / await)
-<h4>Back-End</h4>
+#### Back-End
 
     - Node.js
 
-<h4>External APIs Integrated</h4>
+#### External APIs Integrated 
 
     - Spotify Web Api:
     - Ticketmaster Discovery API:
-    IP-API: 
+    - IP-API: 
