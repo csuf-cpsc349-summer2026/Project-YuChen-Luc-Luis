@@ -11,13 +11,13 @@ body {
     line-height: 1.6;
 }
 
-header {
+.site-header {
     background: #1e3a8a;
     color: white;
     padding: 20px;
 }
 
-nav {
+.navbar {
     width: 90%;
     max-width: 1000px;
     margin: 0 auto;
@@ -26,21 +26,33 @@ nav {
     align-items: center;
 }
 
-nav h1 {
+.logo {
+    color: white;
+    text-decoration: none;
     font-size: 2rem;
+    font-weight: bold;
 }
 
-nav div {
+.nav-links {
     display: flex;
+    align-items: center;
     gap: 20px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
-nav a {
+.nav-links li {
+    list-style: none;
+}
+
+.nav-links a {
     color: white;
     text-decoration: none;
 }
 
-nav a:hover {
+.nav-links a:hover,
+.nav-links a.active {
     text-decoration: underline;
 }
 
@@ -312,12 +324,12 @@ section {
 =========================== */
 
 @media (max-width: 700px) {
-    nav {
+    .navbar {
         flex-direction: column;
         gap: 15px;
     }
 
-    nav div {
+    .nav-links {
         flex-wrap: wrap;
         justify-content: center;
     }
@@ -448,4 +460,222 @@ main > section {
     .home-search-controls button {
         width: 100%;
     }
+}
+
+/* ===========================
+   LOGIN PAGE
+=========================== */
+
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 20px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 500px;
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+.login-card h2 {
+    color: #1e3a8a;
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.login-card p {
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.login-field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.login-field label {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.login-field input {
+    width: 100%;
+    padding: 14px;
+    font-size: 1rem;
+    border: 2px solid #d5d9e2;
+    border-radius: 10px;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.login-field input:focus {
+    outline: none;
+    border-color: #1db954;
+    box-shadow: 0 0 0 4px rgba(29, 185, 84, 0.15);
+}
+
+.login-card form button,
+.google-login-button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: #1db954;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.login-card form button:hover {
+    background: #17a74a;
+    transform: translateY(-1px);
+}
+
+.login-message {
+    color: #dc2626;
+    margin-bottom: 15px;
+}
+
+.login-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 22px 0;
+    color: #777;
+}
+
+.login-divider::before,
+.login-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #d5d9e2;
+}
+
+.google-login-button {
+    background: white;
+    color: #333;
+    border: 2px solid #d5d9e2;
+}
+
+.google-login-button:hover {
+    background: #f4f6f9;
+}
+
+.login-switch-text {
+    margin-top: 22px;
+    margin-bottom: 0 !important;
+    text-align: center;
+}
+
+.login-switch-button {
+    width: auto !important;
+    padding: 0 !important;
+    margin-left: 6px;
+    background: transparent !important;
+    color: #1e3a8a !important;
+    font-weight: bold;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.login-switch-button:hover {
+    transform: none !important;
+}
+
+.login-card form button:disabled,
+.google-login-button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ===========================
+   Navbar User
+=========================== */
+
+.navbar-user {
+    color: white;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.logout-button {
+    width: auto !important;
+    padding: 0 !important;
+    margin: 0;
+    border: none;
+    background: transparent !important;
+    color: white !important;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 0 !important;
+}
+
+.logout-button:hover {
+    background: transparent !important;
+    color: #1db954 !important;
+    text-decoration: underline;
+    transform: none !important;
+}
+
+/* ===========================
+   Login Warning Modal
+=========================== */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.warning-modal {
+    width: 90%;
+    max-width: 400px;
+    background: white;
+    padding: 28px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.warning-modal h3 {
+    color: #dc2626;
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+}
+
+.warning-modal p {
+    color: #333;
+    margin-bottom: 22px;
+}
+
+.warning-modal button {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    background: #1e3a8a;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.warning-modal button:hover {
+    background: #162f73;
 }

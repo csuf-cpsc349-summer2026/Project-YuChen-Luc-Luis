@@ -1,13 +1,23 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import {
+    Link,
+    useNavigate,
+    useSearchParams
+} from "react-router-dom";
+
 import { searchArtists } from "../services/spotifyApi.js";
 import { useFavorites } from "../context/FavoritesContext.jsx";
+import LoginWarningModal from "../components/LoginWarningModal.jsx";
 
 function SearchPage() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
 
-    const { toggleFavorite, isFavorite } = useFavorites();
+    const {
+        toggleFavorite,
+        isFavorite,
+        user
+    } = useFavorites();
 
     const artistQuery = searchParams.get("artist") || "";
 
@@ -15,6 +25,7 @@ function SearchPage() {
     const [artists, setArtists] = useState([]);
     const [status, setStatus] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showLoginWarning, setShowLoginWarning] = useState(false);
 
     useEffect(() => {
         setArtistName(artistQuery);
@@ -60,13 +71,24 @@ function SearchPage() {
             return;
         }
 
-        navigate(`/search?artist=${encodeURIComponent(trimmedArtist)}`);
+        navigate(
+            `/search?artist=${encodeURIComponent(trimmedArtist)}`
+        );
     }
 
     function handleKeyDown(event) {
         if (event.key === "Enter") {
             runSearch();
         }
+    }
+
+    async function handleFavoriteClick(artist) {
+        if (!user) {
+            setShowLoginWarning(true);
+            return;
+        }
+
+        await toggleFavorite(artist);
     }
 
     return (
@@ -79,7 +101,9 @@ function SearchPage() {
                     id="artist-input"
                     placeholder="Enter artist name..."
                     value={artistName}
-                    onChange={(event) => setArtistName(event.target.value)}
+                    onChange={(event) =>
+                        setArtistName(event.target.value)
+                    }
                     onKeyDown={handleKeyDown}
                 />
 
@@ -93,7 +117,11 @@ function SearchPage() {
                 </button>
             </div>
 
-            {status && <p id="search-status">{status}</p>}
+            {status && (
+                <p id="search-status">
+                    {status}
+                </p>
+            )}
 
             <div id="artist-results">
                 {artists.map((artist) => {
@@ -120,7 +148,8 @@ function SearchPage() {
                                 <h3>{artist.name}</h3>
 
                                 <p>
-                                    <strong>Genres:</strong> {genres}
+                                    <strong>Genres:</strong>{" "}
+                                    {genres}
                                 </p>
 
                                 <p>
@@ -143,7 +172,7 @@ function SearchPage() {
                                                 : "favorite-btn"
                                         }
                                         onClick={() =>
-                                            toggleFavorite(artist)
+                                            handleFavoriteClick(artist)
                                         }
                                     >
                                         {favorited
@@ -156,6 +185,11 @@ function SearchPage() {
                     );
                 })}
             </div>
+
+            <LoginWarningModal
+                isOpen={showLoginWarning}
+                onClose={() => setShowLoginWarning(false)}
+            />
         </section>
     );
 }

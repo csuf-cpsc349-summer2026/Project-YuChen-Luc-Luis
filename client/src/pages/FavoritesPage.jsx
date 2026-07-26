@@ -2,11 +2,58 @@ import { Link } from "react-router-dom";
 import { useFavorites } from "../context/FavoritesContext.jsx";
 
 function FavoritesPage() {
-    const { favorites, removeFavorite } = useFavorites();
+    const {
+        favorites,
+        removeFavorite,
+        user,
+        authLoading,
+        favoritesLoading,
+        message
+    } = useFavorites();
+
+    if (authLoading) {
+        return (
+            <section id="favorites-section">
+                <h2>Favorite Artists</h2>
+                <p>Loading...</p>
+            </section>
+        );
+    }
+
+    if (!user) {
+        return (
+            <section id="favorites-section">
+                <h2>Favorite Artists</h2>
+
+                <div className="empty-favorites">
+                    <p>You have not added any favorite artists yet.</p>
+
+                    <Link to="/search">
+                        Search for artists
+                    </Link>
+                </div>
+            </section>
+        );
+    }
+
+    if (favoritesLoading) {
+        return (
+            <section id="favorites-section">
+                <h2>Favorite Artists</h2>
+                <p>Loading your favorites...</p>
+            </section>
+        );
+    }
 
     return (
         <section id="favorites-section">
             <h2>Favorite Artists</h2>
+
+            {message && (
+                <p className="login-message">
+                    {message}
+                </p>
+            )}
 
             {favorites.length === 0 ? (
                 <div className="empty-favorites">
@@ -40,7 +87,8 @@ function FavoritesPage() {
                                     <h3>{artist.name}</h3>
 
                                     <p>
-                                        <strong>Genres:</strong> {genres}
+                                        <strong>Genres:</strong>{" "}
+                                        {genres}
                                     </p>
 
                                     <p>

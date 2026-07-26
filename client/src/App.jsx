@@ -1,11 +1,13 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import Navbar from "./components/Navbar.jsx";
+
 import HomePage from "./pages/HomePage.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
 import FavoritesPage from "./pages/FavoritesPage.jsx";
 import ShowsPage from "./pages/ShowsPage.jsx";
 import ArtistPage from "./pages/ArtistPage.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
 
 function App() {
     return (
@@ -14,11 +16,35 @@ function App() {
 
             <main>
                 <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/search" element={<SearchPage />} />
-                    <Route path="/favorites" element={<FavoritesPage />} />
-                    <Route path="/shows" element={<ShowsPage />} />
-                    <Route path="/artist/:id" element={<ArtistPage />} />
+                    <Route
+                        path="/"
+                        element={<HomePage />}
+                    />
+
+                    <Route
+                        path="/search"
+                        element={<SearchPage />}
+                    />
+
+                    <Route
+                        path="/favorites"
+                        element={<FavoritesPage />}
+                    />
+
+                    <Route
+                        path="/shows"
+                        element={<ShowsPage />}
+                    />
+
+                    <Route
+                        path="/artist/:id"
+                        element={<ArtistPage />}
+                    />
+
+                    <Route
+                        path="/login"
+                        element={<LoginPage />}
+                    />
                 </Routes>
             </main>
         </BrowserRouter>

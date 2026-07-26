@@ -321,6 +321,89 @@ section h2 {
 
 
 /* ===========================
+   LOGIN PAGE
+=========================== */
+
+.login-page {
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 500px;
+
+    background: white;
+    border-radius: 12px;
+    padding: 35px;
+
+    box-shadow: 0 5px 15px rgba(0,0,0,.15);
+}
+
+.login-card h2 {
+    color: #1e3a8a;
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.login-card p {
+    margin-bottom: 25px;
+}
+
+.login-field {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.login-field label {
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.login-field input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+
+    border: 1px solid #bbb;
+    border-radius: 8px;
+}
+
+.login-field input:focus {
+    outline: 2px solid #93c5fd;
+    border-color: #2563eb;
+}
+
+.login-card button {
+    width: 100%;
+    padding: 12px;
+
+    background: #2563eb;
+    color: white;
+
+    border: none;
+    border-radius: 8px;
+
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+
+    transition: background .2s ease;
+}
+
+.login-card button:hover {
+    background: #1d4ed8;
+}
+
+.login-message {
+    color: red;
+    margin-bottom: 15px;
+}
+
+
+/* ===========================
    RESPONSIVE DESIGN
 =========================== */
 
@@ -363,5 +446,9 @@ section h2 {
     .artist-detail-image {
         width: 100%;
         height: auto;
+    }
+
+    .login-card {
+        padding: 25px;
     }
 }

@@ -1,15 +1,22 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+
 import { getArtist } from "../services/artistApi.js";
 import { useFavorites } from "../context/FavoritesContext.jsx";
+import LoginWarningModal from "../components/LoginWarningModal.jsx";
 
 function ArtistPage() {
     const { id } = useParams();
 
     const [artist, setArtist] = useState(null);
     const [status, setStatus] = useState("Loading artist...");
+    const [showLoginWarning, setShowLoginWarning] = useState(false);
 
-    const { toggleFavorite, isFavorite } = useFavorites();
+    const {
+        toggleFavorite,
+        isFavorite,
+        user
+    } = useFavorites();
 
     useEffect(() => {
         async function loadArtist() {
@@ -26,6 +33,15 @@ function ArtistPage() {
 
         loadArtist();
     }, [id]);
+
+    async function handleFavoriteClick() {
+        if (!user) {
+            setShowLoginWarning(true);
+            return;
+        }
+
+        await toggleFavorite(artist);
+    }
 
     if (status) {
         return (
@@ -64,7 +80,9 @@ function ArtistPage() {
 
                 <p>
                     <strong>Followers:</strong>{" "}
-                    {Number(artist.followers || 0).toLocaleString()}
+                    {Number(
+                        artist.followers || 0
+                    ).toLocaleString()}
                 </p>
 
                 <p>
@@ -79,7 +97,7 @@ function ArtistPage() {
                             ? "favorite-btn active"
                             : "favorite-btn"
                     }
-                    onClick={() => toggleFavorite(artist)}
+                    onClick={handleFavoriteClick}
                 >
                     {favorited
                         ? "★ Remove Favorite"
@@ -96,6 +114,11 @@ function ArtistPage() {
                     </a>
                 )}
             </div>
+
+            <LoginWarningModal
+                isOpen={showLoginWarning}
+                onClose={() => setShowLoginWarning(false)}
+            />
         </section>
     );
 }
