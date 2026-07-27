@@ -3,6 +3,12 @@ import EventWeather from "../components/EventWeather.jsx";
 
 function ShowsPage() {
     const { savedShows, removeShow } = useShows();
+    const sortedShows = [...savedShows].sort((a, b) => {
+        if (!a.date) return 1;
+        if (!b.date) return -1;
+
+        return a.date.localeCompare(b.date);
+    });
 
     return (
         <section id="shows-section">
@@ -23,7 +29,7 @@ function ShowsPage() {
                 </div>
             ) : (
                 <div className="events-grid">
-                    {savedShows.map((event) => (
+                    {sortedShows.map((event) => (
                         <article
                             className="event-card"
                             key={event.id}
