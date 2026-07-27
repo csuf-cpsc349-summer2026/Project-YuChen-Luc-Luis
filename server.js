@@ -60,7 +60,10 @@ app.use(
         rolling: true,
         cookie: {
             httpOnly: true,
-            sameSite: "lax",
+            sameSite:
+                process.env.NODE_ENV === "production"
+                    ? "none"
+                    : "lax", 
             secure: process.env.NODE_ENV === "production",
             maxAge: 1000 * 60 * 60 * 24 * 7
         }
@@ -842,6 +845,16 @@ app.get(
 });
 
 app.get("/api/auth/me", async (req, res) => {
+    console.log("AUTH ME session ID:", req.sessionID);
+    console.log(
+        "AUTH ME access token:",
+        req.session.spotifyAccessToken
+    );
+    console.log(
+        "AUTH ME cookies:",
+        req.headers.cookie
+    );
+        
     const accessToken =
         req.session.spotifyAccessToken;
 
