@@ -821,20 +821,17 @@ app.get(
                 }
             });
         } catch (error) {
-            console.error(
-                "Spotify profile error:",
-                error.body ||
-                    error.message
-            );
+            console.error("Spotify profile error details:");
+            console.error("Status code:", error.statusCode);
+            console.error("Message:", error.message);
+            console.error("Body:", error.body);
+            console.error("Full error:", error);
 
             return res
-                .status(
-                    error.statusCode || 500
-                )
+                .status(error.statusCode || 500)
                 .json({
                     connected: false,
-                    error:
-                        "Unable to load Spotify profile."
+                    error: "Unable to load Spotify profile."
                 });
         }
     }
