@@ -745,79 +745,67 @@ app.get(
     }
 );
 
-app.get(
-    "/api/auth/callback",
-    async (req, res) => {
-        const code = req.query.code;
-        const state = req.query.state;
+app.get("/api/auth/callback", async (req, res) => {
+    const { code, state, error: spotifyError } = req.query;
 
-        if (!code) {
-            return res
-                .status(400)
-                .send(
-                    "Spotify authorization code is missing."
-                );
-        }
-
-        if (
-            !state ||
-            state !==
-                req.session.spotifyState
-        ) {
-            return res
-                .status(400)
-                .send(
-                    "Spotify state verification failed."
-                );
-        }
-
-        try {
-            const tokenData =
-                await spotifyApi.authorizationCodeGrant(
-                    code
-                );
-
-            req.session.spotifyAccessToken =
-                tokenData.body.access_token;
-
-            req.session.spotifyRefreshToken =
-                tokenData.body.refresh_token;
-
-            delete req.session.spotifyState;
-
-            req.session.save((error) => {
-                if (error) {
-                    console.error(
-                        "Session save error:",
-                        error
-                    );
-
-                    return res
-                        .status(500)
-                        .send(
-                            "Unable to save session."
-                        );
-                }
-
-                res.redirect(
-                    process.env.CLIENT_URL || "http://127.0.0.1:5173"
-                );
-            });
-        } catch (error) {
-            console.error(
-                "Spotify callback error:",
-                error.body ||
-                    error.message
-            );
-
-            return res
-                .status(500)
-                .send(
-                    "Spotify authorization failed."
-                );
-        }
+    if (spotifyError) {
+        return res
+            .status(400)
+            .send(`Spotify authorization error: ${spotifyError}`);
     }
-);
+
+    if (!code) {
+        return res
+            .status(400)
+            .send("Spotify authorization code is missing.");
+    }
+
+    if (!state || state !== req.session.spotifyState) {
+        return res
+            .status(400)
+            .send("Spotify state verification failed.");
+    }
+
+    try {
+        const tokenData =
+            await spotifyApi.authorizationCodeGrant(code);
+
+        req.session.spotifyAccessToken =
+            tokenData.body.access_token;
+
+        req.session.spotifyRefreshToken =
+            tokenData.body.refresh_token;
+
+        delete req.session.spotifyState;
+
+        req.session.save((sessionError) => {
+            if (sessionError) {
+                console.error(
+                    "Session save error:",
+                    sessionError
+                );
+
+                return res
+                    .status(500)
+                    .send("Unable to save session.");
+            }
+
+            return res.redirect(
+                process.env.CLIENT_URL ||
+                    "http://127.0.0.1:5173"
+            );
+        });
+    } catch (error) {
+        console.error(
+            "Spotify callback error:",
+            error.body || error.message || error
+        );
+
+        return res
+            .status(500)
+            .send("Spotify authorization failed.");
+    }
+});
 
 app.get(
     "/api/auth/me",
