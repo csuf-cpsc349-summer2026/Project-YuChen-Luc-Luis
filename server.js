@@ -724,6 +724,8 @@ app.get("/api/location", async (req, res) => {
 });
 
 app.get("/api/auth/login", (req, res) => {
+    console.log("SPOTIFY LOGIN ROUTE HIT");
+    console.log("LOGIN session ID:", req.sessionID);
     const state = crypto.randomUUID();
 
     req.session.spotifyState = state;
@@ -761,32 +763,57 @@ app.get("/api/auth/login", (req, res) => {
 app.get("/api/auth/callback", async (req, res) => {
     const { code, state, error: spotifyError } = req.query;
 
+app.get("/api/auth/callback", async (req, res) => {
+    const {
+        code,
+        state,
+        error: spotifyError
+    } = req.query;
+
+    console.log("SPOTIFY CALLBACK ROUTE HIT");
     console.log("CALLBACK session ID:", req.sessionID);
     console.log("CALLBACK received state:", state);
-    console.log("CALLBACK stored state:", req.session.spotifyState);
-    console.log("CALLBACK cookies:", req.headers.cookie);
+    console.log(
+        "CALLBACK stored state:",
+        req.session.spotifyState
+    );
+    console.log(
+        "CALLBACK cookies:",
+        req.headers.cookie
+    );
 
     if (spotifyError) {
         return res
             .status(400)
-            .send(`Spotify authorization error: ${spotifyError}`);
+            .send(
+                `Spotify authorization error: ${spotifyError}`
+            );
     }
 
     if (!code) {
         return res
             .status(400)
-            .send("Spotify authorization code is missing.");
+            .send(
+                "Spotify authorization code is missing."
+            );
     }
 
-    if (!state || state !== req.session.spotifyState) {
+    if (
+        !state ||
+        state !== req.session.spotifyState
+    ) {
         return res
             .status(400)
-            .send("Spotify state verification failed.");
+            .send(
+                "Spotify state verification failed."
+            );
     }
 
     try {
         const tokenData =
-            await spotifyApi.authorizationCodeGrant(code);
+            await spotifyApi.authorizationCodeGrant(
+                code
+            );
 
         req.session.spotifyAccessToken =
             tokenData.body.access_token;
@@ -798,14 +825,19 @@ app.get("/api/auth/callback", async (req, res) => {
 
         req.session.save((error) => {
             if (error) {
-                console.error("Session save error:", error);
+                console.error(
+                    "Session save error:",
+                    error
+                );
 
                 return res
                     .status(500)
-                    .send("Unable to save session.");
+                    .send(
+                        "Unable to save session."
+                    );
             }
 
-            res.redirect(
+            return res.redirect(
                 process.env.CLIENT_URL ||
                 "http://127.0.0.1:5173"
             );
@@ -813,73 +845,87 @@ app.get("/api/auth/callback", async (req, res) => {
     } catch (error) {
         console.error(
             "Spotify callback error:",
-            error.body || error.message
+            error.body ||
+                error.message ||
+                error
         );
 
         return res
             .status(500)
-            .send("Spotify authorization failed.");
+            .send(
+                "Spotify authorization failed."
+            );
     }
 });
 
-app.get(
-    "/api/auth/me",
-    async (req, res) => {
-        const accessToken =
-            req.session
-                .spotifyAccessToken;
+app.get("/api/auth/me", async (req, res) => {
+    const accessToken =
+        req.session.spotifyAccessToken;
 
-        if (!accessToken) {
-            return res
-                .status(401)
-                .json({
-                    connected: false,
-                    error:
-                        "Spotify account is not connected."
-                });
-        }
-
-        try {
-            spotifyApi.setAccessToken(
-                accessToken
-            );
-
-            const userData =
-                await spotifyApi.getMe();
-
-            const user =
-                userData.body;
-
-            return res.json({
-                connected: true,
-                user: {
-                    id: user.id,
-                    displayName:
-                        user.display_name,
-                    image:
-                        user.images?.[0]
-                            ?.url || "",
-                    spotifyUrl:
-                        user.external_urls
-                            ?.spotify || ""
-                }
-            });
-        } catch (error) {
-            console.error("Spotify profile error details:");
-            console.error("Status code:", error.statusCode);
-            console.error("Message:", error.message);
-            console.error("Body:", error.body);
-            console.error("Full error:", error);
-
-            return res
-                .status(error.statusCode || 500)
-                .json({
-                    connected: false,
-                    error: "Unable to load Spotify profile."
-                });
-        }
+    if (!accessToken) {
+        return res.status(401).json({
+            connected: false,
+            error:
+                "Spotify account is not connected."
+        });
     }
-);
+
+    try {
+        spotifyApi.setAccessToken(
+            accessToken
+        );
+
+        const userData =
+            await spotifyApi.getMe();
+
+        const user = userData.body;
+
+        return res.json({
+            connected: true,
+            user: {
+                id: user.id,
+                displayName:
+                    user.display_name,
+                image:
+                    user.images?.[0]?.url ||
+                    "",
+                spotifyUrl:
+                    user.external_urls
+                        ?.spotify || ""
+            }
+        });
+    } catch (error) {
+        console.error(
+            "Spotify profile error details:"
+        );
+        console.error(
+            "Status code:",
+            error.statusCode
+        );
+        console.error(
+            "Message:",
+            error.message
+        );
+        console.error(
+            "Body:",
+            error.body
+        );
+        console.error(
+            "Full error:",
+            error
+        );
+
+        return res
+            .status(
+                error.statusCode || 500
+            )
+            .json({
+                connected: false,
+                error:
+                    "Unable to load Spotify profile."
+            });
+    }
+});
 
 app.get(
     "/api/auth/top-artists",
@@ -922,7 +968,8 @@ app.get(
             const topArtistsData =
                 await spotifyApi.getMyTopArtists({
                     limit: 10,
-                    time_range: "medium_term"
+                    time_range:
+                        "medium_term"
                 });
 
             const artists =
@@ -958,7 +1005,8 @@ app.get(
             console.error(
                 "Spotify top artists error:",
                 error.body ||
-                    error.message
+                    error.message ||
+                    error
             );
 
             return res
