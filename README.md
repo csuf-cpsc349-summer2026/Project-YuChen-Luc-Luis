@@ -124,23 +124,39 @@ https://music-discovery-app-cp0k.onrender.com
 
 ## GitHub Repository
 
-(Add your GitHub repository URL here.)
-
-## Team Members
-
-- Your Name
-- Teammate Name(s)
+https://github.com/csuf-cpsc349-summer2026/Project-YuChen-Luc-Luis.git
 
 ## Screenshots
 
-Include screenshots of:
+## Screenshots
 
-- Home Page
-- Search Page
-- Artist Details
-- Favorites
-- Insights Dashboard
-- Responsive Mobile View
+### Home Page
+
+![Home Page](images/homepage.png)
+
+### Search Page
+
+![Search Page](images/searchpage.png)
+
+### Artist Details
+
+![Artist Details](images/artistdetails.png)
+
+### Favorite Artists
+
+![Favorite Artists](images/savedfavoriteartists.png)
+
+### Saved Shows
+
+![Saved Shows](images/savedshows.png)
+
+### Top Artists Chart
+
+![Top Artists Chart](images/chartofartists.jpg)
+
+### Concerts by State Chart
+
+![Concerts by State Chart](images/chartofconcerts.jpg)
 
 
     
