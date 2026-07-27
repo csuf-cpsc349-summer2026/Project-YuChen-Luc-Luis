@@ -60,11 +60,8 @@ app.use(
         rolling: true,
         cookie: {
             httpOnly: true,
-            sameSite:
-                process.env.NODE_ENV === "production"
-                    ? "none"
-                    : "lax", 
-            secure: process.env.NODE_ENV === "production",
+            sameSite: "none",
+            secure: true,
             maxAge: 1000 * 60 * 60 * 24 * 7
         }
     })
