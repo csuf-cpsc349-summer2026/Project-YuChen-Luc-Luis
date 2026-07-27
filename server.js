@@ -483,6 +483,53 @@ app.get(
     }
 );
 
+app.get("/api/insights/genres", async (req, res) => {
+    try {
+        const params = new URLSearchParams({
+            apikey: process.env.TICKETMASTER_API_KEY,
+            classificationName: "music",
+            countryCode: "US",
+            size: "200"
+        });
+
+        const response = await fetch(
+            `https://app.ticketmaster.com/discovery/v2/events.json?${params}`
+        );
+
+        const data = await response.json();
+
+        const events = data._embedded?.events ?? [];
+
+        const genreCounts = {};
+
+        events.forEach((event) => {
+            const genre =
+                event.classifications?.[0]?.genre?.name ||
+                "Other";
+
+            genreCounts[genre] =
+                (genreCounts[genre] || 0) + 1;
+        });
+
+        const genres = Object.entries(genreCounts)
+            .map(([genre, events]) => ({
+                genre,
+                events
+            }))
+            .sort((a, b) => b.events - a.events)
+            .slice(0, 10);
+
+        res.json({ genres });
+
+    } catch (error) {
+        console.error("Genre insights error:", error);
+
+        res.status(500).json({
+            error: "Unable to load genre insights."
+        });
+    }
+});
+
 app.get("/api/weather", async (req, res) => {
     const city = req.query.city?.trim();
     const state = req.query.state?.trim();

@@ -15,6 +15,14 @@ function InsightsPage() {
 
     const [concertsByState, setConcertsByState] =
         useState([]);
+    const [genres, setGenres] =
+        useState([]);
+
+    const [loadingGenres, setLoadingGenres] =
+        useState(true);
+
+    const [genreError, setGenreError] =
+        useState("");
 
     const [concertStats, setConcertStats] =
         useState({
@@ -34,6 +42,7 @@ function InsightsPage() {
 
     const [concertError, setConcertError] =
         useState("");
+    
 
     useEffect(() => {
         async function loadTopArtists() {
@@ -107,6 +116,36 @@ function InsightsPage() {
         }
 
         loadConcertInsights();
+    }, []);
+
+    useEffect(() => {
+        async function loadGenreInsights() {
+            try {
+                const response = await fetch(
+                    `${import.meta.env.VITE_API_URL}/api/insights/genres`
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.error ||
+                        "Could not load genre insights."
+                    );
+                }
+
+                setGenres(data.genres ?? []);
+
+            } catch (error) {
+                console.error(error);
+                setGenreError(error.message);
+
+            } finally {
+                setLoadingGenres(false);
+            }
+        }
+
+        loadGenreInsights();
     }, []);
 
     return (
@@ -332,9 +371,97 @@ function InsightsPage() {
                             available.
                         </p>
                     )}
+
+                    
+
+
             </section>
+   
+            <section>
+                <h2>
+                    Music Events by Genre
+                </h2>
+
+                <p>
+                    Distribution of upcoming music
+                    events by genre from Ticketmaster.
+                </p>
+
+                {loadingGenres && (
+                    <p>
+                        Loading genre insights...
+                    </p>
+                )}
+
+                {genreError && (
+                    <p className="insight-error">
+                        {genreError}
+                    </p>
+                )}
+
+                {!loadingGenres &&
+                    !genreError &&
+                    genres.length > 0 && (
+                        <div className="chart-container">
+                            <ResponsiveContainer
+                                width="100%"
+                                height="100%"
+                            >
+                                <BarChart
+                                    data={genres}
+                                    layout="vertical"
+                                    margin={{
+                                        top: 10,
+                                        right: 30,
+                                        left: 35,
+                                        bottom: 10
+                                    }}
+                                >
+                                    <CartesianGrid
+                                        strokeDasharray="3 3"
+                                    />
+
+                                    <XAxis
+                                        type="number"
+                                        allowDecimals={false}
+                                    />
+
+                                    <YAxis
+                                        type="category"
+                                        dataKey="genre"
+                                        width={120}
+                                    />
+
+                                    <Tooltip
+                                        formatter={(value) => [
+                                            value,
+                                            "Events"
+                                        ]}
+                                    />
+
+                                    <Bar
+                                        dataKey="events"
+                                        name="Events"
+                                        fill="#9333ea"
+                                        radius={[
+                                            0,
+                                            6,
+                                            6,
+                                            0
+                                        ]}
+                                    />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    )}
+
+            </section>
+
         </main>
     );
 }
+            
+
+       
 
 export default InsightsPage;
