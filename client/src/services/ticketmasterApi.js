@@ -1,4 +1,5 @@
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL =
+    import.meta.env.VITE_API_URL;
 
 export async function searchEvents(artist) {
     const params = new URLSearchParams({
@@ -13,7 +14,8 @@ export async function searchEvents(artist) {
 
     if (!response.ok) {
         throw new Error(
-            data.error || "Unable to load Ticketmaster events."
+            data.error ||
+                "Unable to load Ticketmaster events."
         );
     }
 
