@@ -148,6 +148,14 @@ https://github.com/csuf-cpsc349-summer2026/Project-YuChen-Luc-Luis.git
 
 ![Saved Shows](images/savedshows.png)
 
+### Login with email
+
+![Login with email](images/login.png)
+
+### Login with google email
+
+![Login with google email](images/loginwithgoogle.png)
+
 ### Top Artists Chart
 
 ![Top Artists Chart](images/chartofartists.jpg)
