@@ -761,9 +761,6 @@ app.get("/api/auth/login", (req, res) => {
 });
 
 app.get("/api/auth/callback", async (req, res) => {
-    const { code, state, error: spotifyError } = req.query;
-
-app.get("/api/auth/callback", async (req, res) => {
     const {
         code,
         state,
