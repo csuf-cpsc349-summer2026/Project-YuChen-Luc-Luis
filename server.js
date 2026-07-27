@@ -18,6 +18,7 @@ console.log(
 );
 
 const app = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 
 const allowedOrigins = [
@@ -59,8 +60,8 @@ app.use(
         cookie: {
             httpOnly: true,
             sameSite: "lax",
-            secure: false,
-            maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 1000 * 60 * 60 * 24 * 7
         }
     })
 );
@@ -721,28 +722,42 @@ app.get("/api/location", async (req, res) => {
     }
 });
 
-app.get(
-    "/api/auth/login",
-    (req, res) => {
-        const state = crypto.randomUUID();
+app.get("/api/auth/login", (req, res) => {
+    const state = crypto.randomUUID();
 
-        req.session.spotifyState = state;
+    req.session.spotifyState = state;
 
-        const scopes = [
-            "user-read-private",
-            "user-read-email",
-            "user-top-read"
-        ];
+    const scopes = [
+        "user-read-private",
+        "user-read-email",
+        "user-top-read"
+    ];
 
-        const authorizeUrl =
-            spotifyApi.createAuthorizeURL(
-                scopes,
-                state
+    const authorizeUrl =
+        spotifyApi.createAuthorizeURL(
+            scopes,
+            state
+        );
+
+    req.session.save((error) => {
+        if (error) {
+            console.error(
+                "Spotify login session save error:",
+                error
             );
 
+            return res
+                .status(500)
+                .send(
+                    "Unable to begin Spotify authorization."
+                );
+        }
+
         res.redirect(authorizeUrl);
-    }
-);
+    });
+});
+
+    
 
 app.get(
     "/api/auth/callback",
@@ -761,7 +776,9 @@ app.get(
         if (
             !state ||
             state !==
-                req.session.spotifyState
+                req.session.spotifyState = state;
+                console.log("LOGIN session ID:", req.sessionID);
+                console.log("LOGIN state:", state);
         ) {
             return res
                 .status(400)
