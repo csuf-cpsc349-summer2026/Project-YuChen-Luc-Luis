@@ -18,6 +18,7 @@ console.log(
 );
 
 const app = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 
 const allowedOrigins = [
@@ -60,8 +61,8 @@ app.use(
         cookie: {
             httpOnly: true,
             sameSite: "lax",
-            secure: false,
-            maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 1000 * 60 * 60 * 24 * 7
         }
     })
 );
@@ -722,31 +723,48 @@ app.get("/api/location", async (req, res) => {
     }
 });
 
-app.get(
-    "/api/auth/login",
-    (req, res) => {
-        const state = crypto.randomUUID();
+app.get("/api/auth/login", (req, res) => {
+    const state = crypto.randomUUID();
 
-        req.session.spotifyState = state;
+    req.session.spotifyState = state;
 
-        const scopes = [
-            "user-read-private",
-            "user-read-email",
-            "user-top-read"
-        ];
+    const scopes = [
+        "user-read-private",
+        "user-read-email",
+        "user-top-read"
+    ];
 
-        const authorizeUrl =
-            spotifyApi.createAuthorizeURL(
-                scopes,
-                state
+    const authorizeUrl =
+        spotifyApi.createAuthorizeURL(
+            scopes,
+            state
+        );
+
+    req.session.save((error) => {
+        if (error) {
+            console.error(
+                "Spotify login session save error:",
+                error
             );
 
+            return res
+                .status(500)
+                .send(
+                    "Unable to begin Spotify authorization."
+                );
+        }
+
         res.redirect(authorizeUrl);
-    }
-);
+    });
+});
 
 app.get("/api/auth/callback", async (req, res) => {
     const { code, state, error: spotifyError } = req.query;
+
+    console.log("CALLBACK session ID:", req.sessionID);
+    console.log("CALLBACK received state:", state);
+    console.log("CALLBACK stored state:", req.session.spotifyState);
+    console.log("CALLBACK cookies:", req.headers.cookie);
 
     if (spotifyError) {
         return res
@@ -778,27 +796,24 @@ app.get("/api/auth/callback", async (req, res) => {
 
         delete req.session.spotifyState;
 
-        req.session.save((sessionError) => {
-            if (sessionError) {
-                console.error(
-                    "Session save error:",
-                    sessionError
-                );
+        req.session.save((error) => {
+            if (error) {
+                console.error("Session save error:", error);
 
                 return res
                     .status(500)
                     .send("Unable to save session.");
             }
 
-            return res.redirect(
+            res.redirect(
                 process.env.CLIENT_URL ||
-                    "http://127.0.0.1:5173"
+                "http://127.0.0.1:5173"
             );
         });
     } catch (error) {
         console.error(
             "Spotify callback error:",
-            error.body || error.message || error
+            error.body || error.message
         );
 
         return res
