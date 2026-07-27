@@ -18,7 +18,7 @@ console.log(
 );
 
 const app = express();
-app.set("trust proxy", 1);
+
 const PORT = process.env.PORT || 3000;
 
 const allowedOrigins = [
@@ -59,11 +59,11 @@ app.use(
         saveUninitialized: false,
         rolling: true,
         cookie: {
-            httpOnly: true,
-            sameSite: "none",
-            secure: true,
-            maxAge: 1000 * 60 * 60 * 24 * 7
-        }
+    httpOnly: true,
+    sameSite: "lax",
+    secure: false,
+    maxAge: 1000 * 60 * 60 * 24 * 7
+}
     })
 );
 
