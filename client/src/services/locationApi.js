@@ -1,17 +1,15 @@
 export async function getLocation() {
-    const response = await fetch("https://ipapi.co/json/");
-
-    if (!response.ok) {
-        throw new Error("Failed to fetch location.");
-    }
+    const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/location`
+    );
 
     const data = await response.json();
 
-    return {
-        city: data.city,
-        region: data.region,
-        country: data.country_name,
-        latitude: data.latitude,
-        longitude: data.longitude,
-    };
+    if (!response.ok) {
+        throw new Error(
+            data.error || "Failed to fetch location."
+        );
+    }
+
+    return data;
 }

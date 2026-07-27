@@ -40,10 +40,7 @@ function HomePage() {
                 });
 
                 const weatherResponse = await fetch(
-                    `http://localhost:3000/api/weather/current?${params}`,
-                    {
-                        credentials: "include",
-                    }
+                    `${import.meta.env.VITE_API_URL}/api/weather/current?${params}`
                 );
 
                 const weatherData = await weatherResponse.json();

@@ -680,6 +680,46 @@ app.get("/api/weather", async (req, res) => {
     }
 });
 
+app.get("/api/location", async (req, res) => {
+    try {
+        const response = await fetch(
+            "https://ipwho.is/"
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || data.success === false) {
+            console.error(
+                "Location API response:",
+                data
+            );
+
+            return res.status(502).json({
+                error:
+                    data.message ||
+                    "Unable to retrieve location."
+            });
+        }
+
+        return res.json({
+            city: data.city || "",
+            region: data.region || "",
+            country: data.country || "",
+            latitude: data.latitude ?? null,
+            longitude: data.longitude ?? null
+        });
+    } catch (error) {
+        console.error(
+            "Location route error:",
+            error
+        );
+
+        return res.status(500).json({
+            error: "Unable to retrieve location."
+        });
+    }
+});
+
 app.get(
     "/api/auth/login",
     (req, res) => {
