@@ -5,12 +5,28 @@ export async function getCurrentWeather(
     latitude,
     longitude
 ) {
+    if (
+        typeof latitude !== "number" ||
+        typeof longitude !== "number"
+    ) {
+        throw new Error(
+            "Valid coordinates are required to load weather."
+        );
+    }
+
     const params = new URLSearchParams({
         latitude: String(latitude),
         longitude: String(longitude),
-        current: "temperature_2m",
-        temperature_unit: "celsius",
-        timezone: "auto"
+
+        current: [
+            "temperature_2m",
+            "apparent_temperature",
+            "wind_speed_10m",
+        ].join(","),
+
+        temperature_unit: "fahrenheit",
+        wind_speed_unit: "mph",
+        timezone: "auto",
     });
 
     const response = await fetch(
@@ -21,13 +37,26 @@ export async function getCurrentWeather(
 
     if (!response.ok) {
         throw new Error(
+            data.reason ||
             "Unable to load current weather."
+        );
+    }
+
+    if (!data.current) {
+        throw new Error(
+            "Current weather data is unavailable."
         );
     }
 
     return {
         temperature:
-            data.current?.temperature_2m ?? "--"
+            data.current.temperature_2m ?? "--",
+
+        feelsLike:
+            data.current.apparent_temperature ?? "--",
+
+        windSpeed:
+            data.current.wind_speed_10m ?? "--",
     };
 }
 
@@ -38,7 +67,7 @@ export async function getEventWeather(
 ) {
     const params = new URLSearchParams({
         city,
-        date
+        date,
     });
 
     if (state) {
@@ -54,7 +83,7 @@ export async function getEventWeather(
     if (!response.ok) {
         throw new Error(
             data.error ||
-                "Unable to load venue weather."
+            "Unable to load venue weather."
         );
     }
 

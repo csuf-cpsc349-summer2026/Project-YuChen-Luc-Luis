@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { getLocation } from "../services/locationApi.js";
+import { getCurrentWeather } from "../services/weatherApi.js";
 
 function HomePage() {
     const [artistName, setArtistName] = useState("");
@@ -11,13 +13,13 @@ function HomePage() {
         country: "Loading...",
     });
 
-    const [locationError, setLocationError] = useState("");
-
     const [weather, setWeather] = useState({
         temperature: "--",
         feelsLike: "--",
         windSpeed: "--",
     });
+
+    const [locationError, setLocationError] = useState("");
 
     const navigate = useNavigate();
 
@@ -26,31 +28,18 @@ function HomePage() {
             try {
                 setLocationError("");
 
-                const data = await getLocation();
+                const locationData = await getLocation();
 
                 setLocation({
-                    city: data.city,
-                    region: data.region,
-                    country: data.country,
+                    city: locationData.city,
+                    region: locationData.region,
+                    country: locationData.country,
                 });
 
-                const params = new URLSearchParams({
-                    city: data.city,
-                    state: data.region,
-                });
-
-                const weatherResponse = await fetch(
-                    `${import.meta.env.VITE_API_URL}/api/weather/current?${params}`
+                const weatherData = await getCurrentWeather(
+                    locationData.latitude,
+                    locationData.longitude
                 );
-
-                const weatherData = await weatherResponse.json();
-
-                if (!weatherResponse.ok) {
-                    throw new Error(
-                        weatherData.error ||
-                        "Could not load current weather."
-                    );
-                }
 
                 setWeather({
                     temperature: weatherData.temperature,
@@ -76,7 +65,8 @@ function HomePage() {
                 });
 
                 setLocationError(
-                    "Could not load your location or weather."
+                    error.message ||
+                        "Could not load your location or weather."
                 );
             }
         }
