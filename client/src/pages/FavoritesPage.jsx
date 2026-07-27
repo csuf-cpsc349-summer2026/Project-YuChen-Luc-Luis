@@ -66,10 +66,7 @@ function FavoritesPage() {
             ) : (
                 <div id="favorite-artists">
                     {favorites.map((artist) => {
-                        const genres = artist.genres?.length
-                            ? artist.genres.join(", ")
-                            : "Genre not available";
-
+                        
                         return (
                             <article
                                 className="artist-result-card"
@@ -86,17 +83,9 @@ function FavoritesPage() {
                                 <div className="artist-result-info">
                                     <h3>{artist.name}</h3>
 
-                                    <p>
-                                        <strong>Genres:</strong>{" "}
-                                        {genres}
-                                    </p>
+                                    
 
-                                    <p>
-                                        <strong>Followers:</strong>{" "}
-                                        {Number(
-                                            artist.followers || 0
-                                        ).toLocaleString()}
-                                    </p>
+                                    
 
                                     <div className="artist-result-actions">
                                         <Link to={`/artist/${artist.id}`}>

@@ -125,9 +125,7 @@ function SearchPage() {
 
             <div id="artist-results">
                 {artists.map((artist) => {
-                    const genres = artist.genres?.length
-                        ? artist.genres.join(", ")
-                        : "Genre not available";
+                    
 
                     const favorited = isFavorite(artist.id);
 
@@ -147,17 +145,7 @@ function SearchPage() {
                             <div className="artist-result-info">
                                 <h3>{artist.name}</h3>
 
-                                <p>
-                                    <strong>Genres:</strong>{" "}
-                                    {genres}
-                                </p>
-
-                                <p>
-                                    <strong>Followers:</strong>{" "}
-                                    {Number(
-                                        artist.followers || 0
-                                    ).toLocaleString()}
-                                </p>
+                                
 
                                 <div className="artist-result-actions">
                                     <Link to={`/artist/${artist.id}`}>
