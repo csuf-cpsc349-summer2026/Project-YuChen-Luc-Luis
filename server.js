@@ -724,6 +724,8 @@ app.get("/api/location", async (req, res) => {
 });
 
 app.get("/api/auth/login", (req, res) => {
+    console.log("SPOTIFY LOGIN ROUTE HIT");
+    console.log("LOGIN session ID:", req.sessionID);
     const state = crypto.randomUUID();
 
     req.session.spotifyState = state;
@@ -765,6 +767,7 @@ app.get(
     async (req, res) => {
         const code = req.query.code;
         const state = req.query.state;
+        console.log("SPOTIFY CALLBACK ROUTE HIT");
         console.log("CALLBACK session ID:", req.sessionID);
         console.log("CALLBACK received state:", state);
         console.log(
