@@ -765,6 +765,13 @@ app.get(
     async (req, res) => {
         const code = req.query.code;
         const state = req.query.state;
+        console.log("CALLBACK session ID:", req.sessionID);
+        console.log("CALLBACK received state:", state);
+        console.log(
+            "CALLBACK stored state:",
+            req.session.spotifyState
+        );
+        console.log("CALLBACK cookies:", req.headers.cookie);
 
         if (!code) {
             return res
