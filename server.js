@@ -726,6 +726,7 @@ app.get("/api/location", async (req, res) => {
 app.get("/api/auth/login", (req, res) => {
     console.log("SPOTIFY LOGIN ROUTE HIT");
     console.log("LOGIN session ID:", req.sessionID);
+
     const state = crypto.randomUUID();
 
     req.session.spotifyState = state;
@@ -738,11 +739,28 @@ app.get("/api/auth/login", (req, res) => {
         "user-top-read"
     ];
 
+    console.log(
+        "LIVE SPOTIFY CLIENT ID:",
+        process.env.SPOTIFY_CLIENT_ID
+    );
+
+    console.log(
+        "LIVE REDIRECT URI:",
+        JSON.stringify(
+            process.env.SPOTIFY_REDIRECT_URI
+        )
+    );
+
     const authorizeUrl =
         spotifyApi.createAuthorizeURL(
             scopes,
             state
         );
+
+    console.log(
+        "SPOTIFY AUTHORIZE URL:",
+        authorizeUrl
+    );
 
     req.session.save((error) => {
         if (error) {
@@ -761,8 +779,6 @@ app.get("/api/auth/login", (req, res) => {
         res.redirect(authorizeUrl);
     });
 });
-
-    
 
 app.get(
     "/api/auth/callback",
