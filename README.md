@@ -128,8 +128,6 @@ https://github.com/csuf-cpsc349-summer2026/Project-YuChen-Luc-Luis.git
 
 ## Screenshots
 
-## Screenshots
-
 ### Home Page
 
 ![Home Page](images/homepage.png)
