@@ -845,6 +845,16 @@ app.get(
 });
 
 app.get("/api/auth/me", async (req, res) => {
+    console.log("AUTH ME session ID:", req.sessionID);
+    console.log(
+        "AUTH ME access token:",
+        req.session.spotifyAccessToken
+    );
+    console.log(
+        "AUTH ME cookies:",
+        req.headers.cookie
+    );
+        
     const accessToken =
         req.session.spotifyAccessToken;
 
