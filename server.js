@@ -730,6 +730,8 @@ app.get("/api/auth/login", (req, res) => {
 
     req.session.spotifyState = state;
 
+    console.log("LOGIN state:", state);
+
     const scopes = [
         "user-read-private",
         "user-read-email",
@@ -760,51 +762,35 @@ app.get("/api/auth/login", (req, res) => {
     });
 });
 
-app.get("/api/auth/callback", async (req, res) => {
-    const {
-        code,
-        state,
-        error: spotifyError
-    } = req.query;
+    
 
-    console.log("SPOTIFY CALLBACK ROUTE HIT");
-    console.log("CALLBACK session ID:", req.sessionID);
-    console.log("CALLBACK received state:", state);
-    console.log(
-        "CALLBACK stored state:",
-        req.session.spotifyState
-    );
-    console.log(
-        "CALLBACK cookies:",
-        req.headers.cookie
-    );
+app.get(
+    "/api/auth/callback",
+    async (req, res) => {
+        const code = req.query.code;
+        const state = req.query.state;
 
-    if (spotifyError) {
-        return res
-            .status(400)
-            .send(
-                `Spotify authorization error: ${spotifyError}`
-            );
-    }
+        console.log("SPOTIFY CALLBACK ROUTE HIT");
+        console.log("CALLBACK session ID:", req.sessionID);
+        console.log("CALLBACK received state:", state);
+        console.log(
+            "CALLBACK stored state:",
+            req.session.spotifyState
+        );
+        console.log("CALLBACK cookies:", req.headers.cookie);
 
-    if (!code) {
-        return res
-            .status(400)
-            .send(
-                "Spotify authorization code is missing."
-            );
-    }
+        if (!code) {
+            return res
+                .status(400)
+                .send("Spotify authorization code is missing.");
+        }
 
-    if (
-        !state ||
-        state !== req.session.spotifyState
-    ) {
-        return res
-            .status(400)
-            .send(
-                "Spotify state verification failed."
-            );
-    }
+        if (!state || state !== req.session.spotifyState) {
+            return res
+                .status(400)
+                .send("Spotify state verification failed.");
+        }
+        
 
     try {
         const tokenData =
