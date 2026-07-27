@@ -116,7 +116,7 @@ node server.js
 
 Frontend (Firebase Hosting)
 
-https://cpsc349-project-1a474.web.app
+https://cpsc349-project-1a474.web.app/
 
 Backend (Render)
 
