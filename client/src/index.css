@@ -326,76 +326,85 @@ section {
    Mobile
 =========================== */
 
+/* ===========================
+   Mobile Navbar
+=========================== */
+
+.navbar-top-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+}
+
 @media (max-width: 700px) {
 
     .navbar {
         width: 100%;
+        max-width: none;
+        display: flex;
         flex-direction: column;
+        align-items: stretch;
+        padding: 10px 16px;
+    }
+
+    .navbar-top-row {
+        display: flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 12px;
-        padding: 10px 0;
+    }
+
+    .menu-toggle {
+        display: block;
     }
 
     .logo {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
 
     .nav-links {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 12px 18px;
+        display: none;
+        flex-direction: column;
         width: 100%;
+        margin-top: 16px;
+        gap: 16px;
+        text-align: center;
+    }
+
+    .nav-links-open {
+        display: flex;
     }
 
     .nav-links li {
-        margin: 0;
+        width: 100%;
     }
 
-    .spotify-connect-button {
-        padding: 10px 18px;
-        font-size: 0.95rem;
+    .spotify-nav-item,
+    .spotify-connected {
+        width: 100%;
     }
 
-    .navbar-user,
+    .spotify-connect-button,
+    .spotify-disconnect-button {
+        width: 100%;
+    }
+
+    .navbar-user {
+        text-align: center;
+    }
+
     .logout-button {
-        font-size: 0.95rem;
-    }
-
-    .artist-result-card {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-
-    .artist-result-image {
-        width: 180px;
-        height: 180px;
-    }
-
-    .artist-result-actions {
-        width: 100%;
-    }
-
-    .artist-search-controls {
-        flex-direction: column;
-    }
-
-    #artist-results,
-    #favorite-artists {
-        grid-template-columns: 1fr;
-    }
-
-    .artist-page-info {
-        text-align: center;
-    }
-
-    .artist-page-info .favorite-btn,
-    .artist-page-info > a {
-        display: block;
-        width: 100%;
-        margin-right: 0;
+        width: 100% !important;
+        padding: 12px !important;
     }
 }
 
@@ -1239,7 +1248,9 @@ main > section {
 
 /* Tablet */
 
-@media (min-width: 701px) and (max-width: 900px) {
+/* Tablet */
+
+@media (min-width: 701px) and (max-width: 1100px) {
 
     .navbar {
         width: 100%;

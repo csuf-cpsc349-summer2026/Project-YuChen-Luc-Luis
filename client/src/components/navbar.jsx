@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+
 import {
     Link,
     NavLink,
+    useLocation,
     useNavigate
 } from "react-router-dom";
 
@@ -14,6 +16,7 @@ import { auth } from "../firebase";
 
 function Navbar() {
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [currentUser, setCurrentUser] = useState(null);
     const [loadingUser, setLoadingUser] = useState(true);
@@ -21,6 +24,8 @@ function Navbar() {
     const [spotifyUser, setSpotifyUser] = useState(null);
     const [checkingSpotify, setCheckingSpotify] =
         useState(true);
+
+    const [menuOpen, setMenuOpen] = useState(false);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(
@@ -78,9 +83,17 @@ function Navbar() {
         };
     }, []);
 
+    /*
+     * Close the mobile menu whenever the page changes.
+     */
+    useEffect(() => {
+        setMenuOpen(false);
+    }, [location.pathname]);
+
     async function handleLogout() {
         try {
             await signOut(auth);
+            setMenuOpen(false);
             navigate("/");
         } catch (error) {
             console.error("Logout failed:", error);
@@ -88,6 +101,8 @@ function Navbar() {
     }
 
     function connectSpotify() {
+        setMenuOpen(false);
+
         window.location.href =
             `${import.meta.env.VITE_API_URL}/api/auth/login`;
     }
@@ -109,6 +124,7 @@ function Navbar() {
             }
 
             setSpotifyUser(null);
+            setMenuOpen(false);
         } catch (error) {
             console.error(
                 "Spotify disconnect failed:",
@@ -117,17 +133,54 @@ function Navbar() {
         }
     }
 
+    function toggleMenu() {
+        setMenuOpen((previousValue) => !previousValue);
+    }
+
+    function closeMenu() {
+        setMenuOpen(false);
+    }
+
     return (
         <header className="site-header">
             <nav className="navbar">
-                <Link to="/" className="logo">
-                    🎵 Event Finder
-                </Link>
+                <div className="navbar-top-row">
+                    <Link
+                        to="/"
+                        className="logo"
+                        onClick={closeMenu}
+                    >
+                        🎵 Event Finder
+                    </Link>
 
-                <ul className="nav-links">
+                    <button
+                        type="button"
+                        className="menu-toggle"
+                        onClick={toggleMenu}
+                        aria-label={
+                            menuOpen
+                                ? "Close navigation menu"
+                                : "Open navigation menu"
+                        }
+                        aria-expanded={menuOpen}
+                        aria-controls="main-navigation"
+                    >
+                        {menuOpen ? "✕" : "☰"}
+                    </button>
+                </div>
+
+                <ul
+                    id="main-navigation"
+                    className={
+                        menuOpen
+                            ? "nav-links nav-links-open"
+                            : "nav-links"
+                    }
+                >
                     <li>
                         <NavLink
                             to="/"
+                            onClick={closeMenu}
                             className={({ isActive }) =>
                                 isActive ? "active" : ""
                             }
@@ -139,6 +192,7 @@ function Navbar() {
                     <li>
                         <NavLink
                             to="/search"
+                            onClick={closeMenu}
                             className={({ isActive }) =>
                                 isActive ? "active" : ""
                             }
@@ -150,6 +204,7 @@ function Navbar() {
                     <li>
                         <NavLink
                             to="/favorites"
+                            onClick={closeMenu}
                             className={({ isActive }) =>
                                 isActive ? "active" : ""
                             }
@@ -161,6 +216,7 @@ function Navbar() {
                     <li>
                         <NavLink
                             to="/shows"
+                            onClick={closeMenu}
                             className={({ isActive }) =>
                                 isActive ? "active" : ""
                             }
@@ -172,6 +228,7 @@ function Navbar() {
                     <li>
                         <NavLink
                             to="/insights"
+                            onClick={closeMenu}
                             className={({ isActive }) =>
                                 isActive ? "active" : ""
                             }
@@ -179,8 +236,6 @@ function Navbar() {
                             Insights
                         </NavLink>
                     </li>
-                        
-
 
                     {!checkingSpotify && (
                         <li className="spotify-nav-item">
@@ -216,6 +271,7 @@ function Navbar() {
                         <li>
                             <NavLink
                                 to="/login"
+                                onClick={closeMenu}
                                 className={({ isActive }) =>
                                     isActive
                                         ? "active"
